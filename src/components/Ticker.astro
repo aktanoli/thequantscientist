@@ -1,18 +1,17 @@
 ---
 const tickers = [
-  { sym: 'ES1!',  val: '+0.42%', up: true },
-  { sym: 'NQ1!',  val: '+0.61%', up: true },
-  { sym: 'RTY1!', val: '-0.18%', up: false },
-  { sym: 'GC1!',  val: '+0.55%', up: true },
-  { sym: 'CL1!',  val: '+1.02%', up: true },
-  { sym: 'BTC',   val: '+2.31%', up: true },
-  { sym: 'VIX',   val: '-3.40%', up: false },
-  { sym: 'DXY',   val: '+0.09%', up: true },
-  { sym: 'ZN1!',  val: '-0.22%', up: false },
-  { sym: 'EURUSD',val: '-0.14%', up: false },
+  { sym: 'ES1!',   val: '+0.42%', up: true  },
+  { sym: 'NQ1!',   val: '+0.61%', up: true  },
+  { sym: 'RTY1!',  val: '-0.18%', up: false },
+  { sym: 'GC1!',   val: '+0.55%', up: true  },
+  { sym: 'CL1!',   val: '+1.02%', up: true  },
+  { sym: 'BTC',    val: '+2.31%', up: true  },
+  { sym: 'VIX',    val: '-3.40%', up: false },
+  { sym: 'DXY',    val: '+0.09%', up: true  },
+  { sym: 'ZN1!',   val: '-0.22%', up: false },
+  { sym: 'EURUSD', val: '-0.14%', up: false },
 ];
 ---
-
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track">
     {[...tickers, ...tickers].map((t, i) => (
@@ -21,7 +20,7 @@ const tickers = [
           <span class="sym">{t.sym}</span>
           <span class={t.up ? 'up' : 'dn'}>{t.val}</span>
         </span>
-        {i < tickers.length * 2 - 1 && <span class="ticker-divider"></span>}
+        <span class="ticker-sep"></span>
       </>
     ))}
   </div>
