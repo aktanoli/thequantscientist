@@ -105,7 +105,7 @@ code {
 }
 
 pre {
-  background: var(--bg-2);
+  background: #1E1E2E;
   border: 1px solid var(--border);
   border-top: 2px solid var(--accent);
   padding: 1.75rem;
@@ -115,9 +115,13 @@ pre {
   box-shadow: var(--shadow-sm);
 }
 
+[data-theme="dark"] pre {
+  background: var(--bg-2);
+}
+
 pre code {
   background: none; border: none; padding: 0;
-  color: var(--text); font-size: 0.875rem; line-height: 1.75;
+  color: #CDD6F4; font-size: 0.875rem; line-height: 1.75;
 }
 
 blockquote {
