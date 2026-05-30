@@ -9,11 +9,9 @@ interface Props {
   title: string;
   description?: string;
 }
-
 const { title, description = SITE_DESCRIPTION } = Astro.props;
 const fullTitle = title === 'Home' ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
 ---
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,9 +20,7 @@ const fullTitle = title === 'Home' ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
 <body>
   <Ticker />
   <Header />
-  <main id="main-content">
-    <slot />
-  </main>
+  <main id="main-content"><slot /></main>
   <Footer />
 </body>
 </html>
