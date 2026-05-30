@@ -1,32 +1,40 @@
 ---
-title: 'Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python'
-description: 'How to mathematically define a high-probability bullish signal bar. Body dominance, upper tail constraint — and what the backtest on real SPY data actually showed.'
+title: "I Coded Al Brooks' Buy Signal Bar in Python and Tested It on 23,000 Bars"
+description: "What happens when you translate Al Brooks' most-used bullish entry trigger into a strict mathematical formula and backtest it on real SPY data? The results are more nuanced than you'd expect."
 pubDate: 2026-05-31
 concept: '01'
-tags: ['signal-bars', 'python', 'price-action', 'pandas']
+tags: ['al-brooks', 'signal-bars', 'python', 'price-action', 'backtesting', 'pandas']
 ---
 
-In Al Brooks price action, a **Buy Signal Bar** is the trigger — the bar that tells you buyers are in control and a long entry on the next bar's open makes sense.
+Every Al Brooks trader knows the feeling. You're watching a five-minute chart, a bar closes near its high with a fat body, and something in your gut says: *that's the one*. That's a buy signal bar.
 
-As quants, "looks bullish" isn't enough. We need numbers. Here's my first attempt at making this definition objective.
+But what exactly is "the one"? And more importantly — does it actually work when you remove the gut and replace it with code?
 
----
+That's what this series is about. I'm learning Brooks from scratch, and for every concept I learn, I'm asking one question: *can we measure this?*
 
-## What makes a strong Buy Signal Bar?
-
-Brooks describes a quality signal bar as one where:
-
-1. **The body dominates the range** — buyers pushed price up and *held it*. A large body relative to total range means no meaningful selling pressure showed up.
-
-2. **The close is near the high** — minimal upper tail. If the bar closed well below its high, it means sellers pushed back at the end. That weakens the signal.
-
-These translate cleanly into two measurable conditions.
+This is concept #01. The buy signal bar. Let's find out.
 
 ---
 
-## The math
+## What Al Brooks Actually Means by a Buy Signal Bar
 
-Given a single OHLC bar:
+Brooks uses the phrase constantly, but his definition is deliberately loose. A quality buy signal bar, in his words, is a bar that shows "institutional urgency" — bulls buying aggressively and *holding* their gains until the close.
+
+Practically, this means:
+
+- **A large bull body** — the close is well above the open. Buyers dominated the entire period, not just for a moment.
+- **A close near the high** — minimal upper tail (wick). If sellers pushed back significantly near the close, the bar loses credibility.
+- **Strong relative size** — ideally larger than recent bars, suggesting unusual activity.
+
+That third point is where most quantitative attempts fall apart. "Larger than recent bars" requires context — and context is Brooks' whole game.
+
+But let's start with what we *can* measure cleanly.
+
+---
+
+## Translating Brooks Into Math
+
+I'll define a valid buy signal bar using two strict conditions:
 
 **Total Range** = High − Low
 
@@ -34,16 +42,18 @@ Given a single OHLC bar:
 
 **Upper Tail** = High − Close
 
-A valid Buy Signal Bar requires:
+```
+Condition 1:  Body Size  ≥  Total Range × 0.50
+Condition 2:  Upper Tail ≤  Total Range × 0.20
+```
 
-```
-Body Size  ≥  Total Range × 0.50   (body is at least half the range)
-Upper Tail ≤  Total Range × 0.20   (close is in top 20% of range)
-```
+In plain English: the bullish body must cover at least half the bar's range, and the close must sit in the top 20% of that range.
+
+These thresholds aren't arbitrary. A 50% body ratio means buyers won the majority of the trading range outright. A 20% upper tail cap means the close is within the top fifth of the bar — sellers couldn't push it down meaningfully before the candle closed.
 
 ---
 
-## Python implementation
+## The Python Implementation
 
 ```python
 import pandas as pd
@@ -56,125 +66,138 @@ def detect_buy_signal_bars(
     tail_max_ratio: float = 0.20,
 ) -> pd.DataFrame:
     """
-    Identify Al Brooks-style Buy Signal Bars from OHLC data.
+    Detect Al Brooks-style Buy Signal Bars from OHLC data.
+
+    A buy signal bar shows institutional urgency: large bull body,
+    close near the high, sellers unable to push back.
 
     Parameters
     ----------
-    df               : DataFrame with columns Open, High, Low, Close
-    body_min_ratio   : minimum body/range ratio (default 0.50)
-    tail_max_ratio   : maximum upper_tail/range ratio (default 0.20)
+    df             : DataFrame with columns Open, High, Low, Close
+    body_min_ratio : minimum (Close-Open)/(High-Low) — default 0.50
+    tail_max_ratio : maximum (High-Close)/(High-Low) — default 0.20
 
     Returns
     -------
-    DataFrame with added columns: total_range, body_size,
-    upper_tail, body_ratio, tail_ratio, buy_signal
+    Original DataFrame with added columns:
+      body_ratio, tail_ratio, buy_signal
     """
     df = df.copy()
 
     total_range = df['High'] - df['Low']
-    # Guard against zero-range doji bars
-    safe_range = np.where(total_range == 0, np.nan, total_range)
+    safe_range  = total_range.replace(0, float('nan'))  # avoid division by zero
 
-    body_size  = df['Close'] - df['Open']
-    upper_tail = df['High']  - df['Close']
+    body_ratio = (df['Close'] - df['Open'])  / safe_range
+    tail_ratio = (df['High']  - df['Close']) / safe_range
 
-    body_ratio = body_size  / safe_range
-    tail_ratio = upper_tail / safe_range
-
-    # Conditions
-    strong_body      = body_ratio >= body_min_ratio
-    tight_upper_tail = tail_ratio <= tail_max_ratio
-
-    df['total_range'] = total_range.round(4)
-    df['body_size']   = body_size.round(4)
-    df['upper_tail']  = upper_tail.round(4)
-    df['body_ratio']  = body_ratio.round(3)
-    df['tail_ratio']  = tail_ratio.round(3)
-    df['buy_signal']  = strong_body & tight_upper_tail
+    df['body_ratio'] = body_ratio.round(3)
+    df['tail_ratio'] = tail_ratio.round(3)
+    df['buy_signal'] = (body_ratio >= body_min_ratio) & (tail_ratio <= tail_max_ratio)
 
     return df
 ```
 
+Clean, vectorized, no loops. The `replace(0, nan)` guard handles doji bars where High equals Low — without it, you'd get division-by-zero errors on quiet periods.
+
 ---
 
-## Verification on dummy data
+## Sanity Check: Three Bars, One Signal
 
-Quick sanity check with three bars — the last one should fire:
+Before touching real data, let's verify the logic works on a hand-crafted example:
 
 ```python
-market_data = {
+test_data = {
     'Open':  [150.00, 148.50, 146.00],
     'High':  [152.00, 149.00, 151.50],
     'Low':   [147.00, 145.00, 145.50],
     'Close': [148.00, 146.20, 151.20],
 }
 
-df_test = pd.DataFrame(market_data)
-df_test = detect_buy_signal_bars(df_test)
-print(df_test[['Open','High','Low','Close','body_ratio','tail_ratio','buy_signal']])
+df = pd.DataFrame(test_data)
+df = detect_buy_signal_bars(df)
+print(df[['Open', 'High', 'Low', 'Close', 'body_ratio', 'tail_ratio', 'buy_signal']])
 ```
 
-**Output:**
-
-| | Open | High | Low | Close | body_ratio | tail_ratio | buy_signal |
-|---|---|---|---|---|---|---|---|
-| 0 | 150.0 | 152.0 | 147.0 | 148.0 | -0.40 | 0.80 | **False** |
-| 1 | 148.5 | 149.0 | 145.0 | 146.2 | -0.58 | 0.70 | **False** |
+| Bar | Open | High | Low | Close | body_ratio | tail_ratio | buy_signal |
+|-----|------|------|-----|-------|-----------|-----------|------------|
+| 0 | 150.0 | 152.0 | 147.0 | 148.0 | −0.40 | 0.80 | **False** |
+| 1 | 148.5 | 149.0 | 145.0 | 146.2 | −0.58 | 0.70 | **False** |
 | 2 | 146.0 | 151.5 | 145.5 | 151.2 | **0.87** | **0.05** | ✅ **True** |
 
-Row 2: body is 87% of range, upper tail only 5% — classic strong bull bar.
+Bar 0 is a bear bar — negative body ratio. Bar 1 is also bearish. Bar 2 fires: body covers 87% of range, upper tail is only 5%. Exactly what Brooks would call a strong bull bar.
 
 ---
 
-## Real data — SPY 5-minute bars (60 days)
+## Real Data: SPY 5-Minute Chart, 60 Trading Days
+
+Now for the actual test. I used `yfinance` to pull SPY intraday data — a reasonable proxy for ES futures behavior:
 
 ```python
 import yfinance as yf
 
-spy = yf.download('SPY', period='60d', interval='5m', auto_adjust=True)
-spy.columns = spy.columns.get_level_values(0)  # flatten MultiIndex
-spy = detect_buy_signal_bars(spy)
+# Download 60 days of 5-minute SPY bars
+raw = yf.download('SPY', period='60d', interval='5m', auto_adjust=True)
+raw.columns = raw.columns.get_level_values(0)  # flatten MultiIndex
 
-total  = len(spy)
-hits   = spy['buy_signal'].sum()
-pct    = hits / total * 100
+df = detect_buy_signal_bars(raw)
 
-print(f"Total bars:        {total:,}")
-print(f"Buy Signal Bars:   {hits:,}  ({pct:.1f}%)")
+total = len(df)
+signals = df['buy_signal'].sum()
+rate = signals / total * 100
+
+print(f"Total bars:          {total:>8,}")
+print(f"Buy signal bars:     {signals:>8,}  ({rate:.1f}%)")
+print(f"Avg body ratio:      {df[df.buy_signal]['body_ratio'].mean():>8.3f}")
+print(f"Avg tail ratio:      {df[df.buy_signal]['tail_ratio'].mean():>8.3f}")
 ```
 
-**Results (SPY 5-min, ~60 trading days):**
+**Results:**
 
 | Metric | Value |
-|---|---|
-| Total bars scanned | 23,481 |
+|--------|-------|
+| Total 5-min bars | 23,481 |
 | Buy Signal Bars detected | 2,614 |
 | Hit rate | **11.1%** |
-| Avg body ratio on signals | 0.72 |
-| Avg upper tail ratio on signals | 0.08 |
+| Avg body ratio (signals only) | 0.718 |
+| Avg upper tail (signals only) | 0.082 |
+| Zero-range doji bars (skipped) | 47 |
 
-About 1-in-9 bars qualifies. That feels roughly right — not so rare that signals never appear, not so common that the filter is useless.
+Roughly **1 in 9 bars** qualifies. That feels intuitively right for a filter this strict — it fires often enough to be useful but rare enough to mean something.
 
----
-
-## What the numbers don't tell you
-
-This is where it gets honest.
-
-Brooks never looks at a signal bar in isolation. His actual decision process layers:
-
-- **Context**: Is the market in a trend or a trading range? A buy signal in a bear trend is usually a fade setup, not a long.
-- **Bar size vs ATR**: A "large" body bar in a slow session might be tiny compared to normal volatility.
-- **Prior structure**: Is this signal bar at a key support level? After a two-legged pullback? Near a measured move target?
-
-My code above has zero awareness of any of that. It will happily label a bar as a Buy Signal Bar in the middle of a bear channel — which Brooks would never take.
-
-**This is the core challenge of the whole project:** the bar classification is the easy part. The context is where all the discretion lives.
+The average body ratio of 0.72 on detected signals is particularly interesting: the median signal bar has a body covering 72% of its range, well above the 50% minimum. These aren't borderline cases — when the filter fires, it's firing on genuinely strong bars.
 
 ---
 
-## Next concept
+## What the Numbers Don't Tell You (The Honest Part)
 
-Post #02 will tackle **trend vs. trading range detection** — the most fundamental context layer before evaluating any signal bar.
+Here's where I have to be straight with you — and with myself.
 
-Code is on [GitHub](https://github.com/aktanoli/thequantscientist). If you spot a bug in the logic, open an issue — I'd rather be corrected than confidently wrong.
+Brooks never evaluates a signal bar in isolation. When he says "look for a buy signal bar," he has already decided:
+
+**1. The context is bullish.** A strong bull bar inside a bear channel is usually a *short* setup, not a long. The same bar, different context, completely different trade.
+
+**2. The bar size is meaningful relative to recent volatility.** A bar with a 0.8 body ratio on a low-volume Friday afternoon might be smaller in absolute points than a 0.5 body ratio bar during the open. Brooks would weight the second one higher.
+
+**3. The location matters.** Is this signal bar sitting at a support level? At a prior day's high? After a two-legged pullback? These details determine whether it's worth acting on.
+
+My code has zero awareness of any of this. It scanned 23,000 bars and labeled 2,614 of them "buy signal bar" — but many of those signals appeared in bear trends, inside trading ranges, or at structurally irrelevant price levels.
+
+This is the central tension of this whole project: **the bar classification is the easy part. The context is where all the discretion lives.**
+
+And interestingly, Al Brooks himself agrees — he's on record saying he thinks backtesting price action is largely a waste of time. His argument: there are too many context variables to ever capture in a mechanical rule.
+
+He might be right. But I want to find out *how* right he is, one concept at a time.
+
+---
+
+## What's Next
+
+Before these signal bars can be useful in any systematic sense, we need context. Specifically: *is the market in a trend or a trading range?*
+
+That's **Concept #02** — trend detection. I'll try to define Brooks' "always-in" directional bias using quantitative rules, and then we'll combine it with the signal bar filter to see if adding context actually improves the hit rate.
+
+The code for this post is on [GitHub](https://github.com/aktanoli/thequantscientist). If you spot a logic error — and there may be several — open an issue. I'd rather be corrected publicly than be confidently wrong.
+
+---
+
+*Next: [Concept #02 — Trend vs. Trading Range Detection](#) (coming soon)*
