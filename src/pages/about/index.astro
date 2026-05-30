@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About" description="The Quant Scientist — who, what, and why.">
+
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-label">About</div>
+      <h1>Who is the<br /><em>Quant Scientist?</em></h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="about-grid">
+
+      <!-- Main content -->
+      <div class="prose">
+        <p>
+          I'm a developer who got curious about Al Brooks price action — and decided
+          the best way to learn it was to code every concept from scratch, backtest it,
+          and write about what the data actually says.
+        </p>
+
+        <p>
+          Brooks is famously discretionary. Most people argue his work can't be
+          quantified. I'm not trying to prove them wrong — I'm just genuinely curious
+          what happens when you try.
+        </p>
+
+        <h2>The format</h2>
+
+        <p>
+          Each post covers one concept: what Brooks means by it, how I translated
+          it into a mathematical definition, what the Python backtest showed, and —
+          crucially — what the quantitative definition is probably missing.
+        </p>
+
+        <p>
+          That last part matters. A lot of this project is about finding the boundary
+          between what can be systematized and what genuinely requires human judgment.
+        </p>
+
+        <h2>Why learn in public?</h2>
+
+        <p>
+          Because I learn better when I have to explain things. And because I couldn't
+          find anyone else doing this — coding Brooks concepts one by one, showing the
+          actual backtest results, being honest about the limitations.
+        </p>
+
+        <p>
+          If you're doing the same thing, or you've already done it,
+          <a href="https://github.com/aktanoli/thequantscientist" style="color:var(--amber)">open an issue on GitHub</a>.
+          I'd love to compare notes.
+        </p>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="about-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-card-label">Tech stack</div>
+          <div>
+            <div class="stack-item">
+              <span class="stack-item-name">Python 3.11</span>
+              <span class="stack-item-role">Analysis</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">pandas / numpy</span>
+              <span class="stack-item-role">Data</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">vectorbt</span>
+              <span class="stack-item-role">Backtesting</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">yfinance</span>
+              <span class="stack-item-role">Market data</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">Google Colab</span>
+              <span class="stack-item-role">Notebooks</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">Astro</span>
+              <span class="stack-item-role">This blog</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">Vercel</span>
+              <span class="stack-item-role">Hosting</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card-label">Instruments</div>
+          <div>
+            <div class="stack-item">
+              <span class="stack-item-name">ES (S&amp;P 500 futures)</span>
+              <span class="stack-item-role">Primary</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">NQ (Nasdaq futures)</span>
+              <span class="stack-item-role">Secondary</span>
+            </div>
+            <div class="stack-item">
+              <span class="stack-item-name">SPY (5-min)</span>
+              <span class="stack-item-role">Proxy data</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card-label">Disclaimer</div>
+          <p style="font-family:var(--mono); font-size:0.72rem; color:var(--text-3); line-height:1.7; margin:0;">
+            All backtests are hypothetical. Past performance does not guarantee
+            future results. This is not financial advice.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</BaseLayout>
