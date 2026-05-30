@@ -10,31 +10,43 @@ Every Al Brooks trader knows the feeling. You're watching a five-minute chart, a
 
 But what exactly makes it "the one"? And does it actually hold up when you strip away the gut feeling and write it as code?
 
-That's the question I'm trying to answer with this series. I'm going through Brooks concept by concept — and for each one, I'm writing Python to define it, then running it on real data to see what happens.
+That's the question I'm trying to answer with this series. I'm going through Brooks concept by concept — and for each one, I'm writing Python to define it, testing it on real data, and writing up what actually comes out. No cherry-picking. No hand-selected examples where everything magically works.
 
-This is concept #01.
+This is concept number one.
 
 ---
 
-## What Brooks Means by a Buy Signal Bar
+## What Brooks means by a buy signal bar
 
-Brooks talks about signal bars constantly, but his actual definition is loose on purpose. A good buy signal bar, in his view, shows that bulls were in control — not just at one point during the bar, but through to the close.
+Brooks talks about signal bars constantly, but his actual definition is loose on purpose. A good buy signal bar, in his view, shows that bulls were in control — not just at one point during the bar, but *through to the close*.
 
 Three things he looks for:
 
-- **A large bull body** — close well above the open. Bulls pushed price up and held it there.
-- **Close near the high** — little to no upper tail. If sellers knocked price back down before the close, the bar is weaker.
-- **Decent size** — ideally bigger than recent bars, which suggests something real happened.
+**A large bull body.** Close well above the open. Bulls pushed price up and held it there for the entire period — not just for a moment.
 
-That third one is where things get complicated. "Bigger than recent bars" depends on what recent bars look like — which means you need context. And context is most of what Brooks actually trades.
+**A close near the high.** Little to no upper tail (upper wick). If sellers knocked price back down significantly before the candle closed, the bar is weaker. Buyers couldn't hold their gains.
 
-For now, I'm ignoring context. Let's just define the bar itself and see what we get.
+**Decent size relative to recent bars.** Unusual size suggests something real happened, not just noise.
+
+That third point is where things get complicated. "Bigger than recent bars" depends entirely on what recent bars look like — which means you need context. And context is most of what Brooks actually trades.
+
+For this post, I'm setting context aside completely. I want to isolate the bar itself, define it precisely, run it on data, and see what comes out.
 
 ---
 
-## Putting Numbers to It
+## The anatomy of a buy signal bar
 
-Two conditions. That's it.
+Here's what we're actually measuring:
+
+![Buy Signal Bar anatomy — upper tail must be under 20% of range, bull body must be over 50%](/buy-signal-bar-diagram.svg)
+
+Two zones, two conditions. The bull body needs to dominate the bar. The upper tail needs to be small.
+
+---
+
+## Putting numbers to it
+
+Two conditions. That's the entire filter.
 
 **Total Range** = High − Low
 
@@ -43,17 +55,17 @@ Two conditions. That's it.
 **Upper Tail** = High − Close
 
 ```
-Body Size  ≥  Total Range × 0.50
-Upper Tail ≤  Total Range × 0.20
+Condition 1:  Body Size  ≥  Total Range × 0.50
+Condition 2:  Upper Tail ≤  Total Range × 0.20
 ```
 
-The body needs to cover at least half the bar's range. The close needs to be in the top 20% of that range — so the upper tail can't eat more than a fifth of the bar.
+The body needs to cover at least half the bar's range. The close needs to be in the top 20% of that range.
 
-Why these numbers? The 50% body threshold means bulls won more than half the day's battle. The 20% tail cap means sellers couldn't stage a meaningful comeback before the candle closed. Both together describe a bar where buyers were genuinely in charge.
+Why these numbers? A 50% body ratio means bulls won more than half the day's battle outright. A 20% upper tail cap means sellers couldn't stage a meaningful comeback before the candle closed. Both conditions together describe a bar where buyers were genuinely in charge — not just briefly.
 
 ---
 
-## The Code
+## The Python implementation
 
 ```python
 import pandas as pd
@@ -77,7 +89,7 @@ def detect_buy_signal_bars(
     df = df.copy()
 
     total_range = df['High'] - df['Low']
-    safe_range  = total_range.replace(0, float('nan'))  # skip doji bars
+    safe_range  = total_range.replace(0, float('nan'))  # skip zero-range doji bars
 
     body_ratio = (df['Close'] - df['Open'])  / safe_range
     tail_ratio = (df['High']  - df['Close']) / safe_range
@@ -89,11 +101,11 @@ def detect_buy_signal_bars(
     return df
 ```
 
-No loops, fully vectorized. The `replace(0, nan)` handles the occasional doji bar where High equals Low — otherwise you'd get a division by zero and the whole thing breaks.
+No loops, fully vectorized. The `replace(0, nan)` handles doji bars where High equals Low — without it you get a division by zero error and the whole thing crashes.
 
 ---
 
-## Quick Sanity Check
+## Quick sanity check
 
 Three hand-crafted bars. The third one should fire:
 
@@ -116,19 +128,19 @@ print(df[['Open', 'High', 'Low', 'Close', 'body_ratio', 'tail_ratio', 'buy_signa
 | 1 | 148.5 | 149.0 | 145.0 | 146.2 | −0.58 | 0.70 | False |
 | 2 | 146.0 | 151.5 | 145.5 | 151.2 | **0.87** | **0.05** | ✅ True |
 
-Bar 0 and 1 are bear bars — negative body ratio means close below open. Bar 2 fires: 87% body, 5% upper tail. That's exactly the kind of bar Brooks circles on a chart.
+Bar 0 and 1 are bear bars — negative body ratio means close below open. Bar 2 fires: 87% body, 5% upper tail. That is exactly the kind of bar Brooks circles on a chart.
 
 ---
 
-## Running It on Real Data
+## Running it on real data
 
-I pulled 60 days of SPY 5-minute bars from yfinance — not ES futures, but close enough for testing the logic:
+60 days of SPY 5-minute bars from yfinance — a reasonable proxy for ES futures behavior:
 
 ```python
 import yfinance as yf
 
 raw = yf.download('SPY', period='60d', interval='5m', auto_adjust=True)
-raw.columns = raw.columns.get_level_values(0)
+raw.columns = raw.columns.get_level_values(0)  # flatten MultiIndex
 
 df = detect_buy_signal_bars(raw)
 
@@ -141,50 +153,50 @@ print(f"Avg body ratio:   {df[df.buy_signal]['body_ratio'].mean():.3f}")
 print(f"Avg tail ratio:   {df[df.buy_signal]['tail_ratio'].mean():.3f}")
 ```
 
-**What came out:**
+**Results — SPY 5-min, 60 trading days:**
 
 | Metric | Value |
 |--------|-------|
-| Total 5-min bars scanned | 23,481 |
+| Total bars scanned | 23,481 |
 | Buy signal bars detected | 2,614 |
 | Hit rate | **11.1%** |
 | Avg body ratio on signals | 0.718 |
 | Avg upper tail on signals | 0.082 |
-| Zero-range bars skipped | 47 |
+| Zero-range doji bars skipped | 47 |
 
-About 1 in 9 bars passes the filter. Feels right — strict enough to be selective, not so strict it never fires.
+About 1 in 9 bars passes the filter. Strict enough to be selective, not so strict it never fires.
 
-What I didn't expect: the average body ratio on detected signals is 0.72, not 0.51. So when the filter triggers, it's not catching borderline cases — it's catching genuinely strong bars, well above the minimum. The filter is doing its job.
+What surprised me: the average body ratio on detected signals is 0.72, not 0.51. When this filter fires, it is not catching borderline cases — it is catching genuinely strong bars, well above the minimum. The filter is actually doing something meaningful.
 
 ---
 
-## Where This Falls Apart
+## Where this falls apart
 
 Here's what the numbers don't show.
 
-Brooks never looks at a signal bar by itself. By the time he's considering a buy signal bar, he's already answered:
+Brooks never looks at a signal bar in isolation. By the time he considers a buy signal bar, he has already answered several questions:
 
-**Is this a bull trend or a bear trend?** A strong bull bar inside a bear channel is almost always a short setup. Same bar shape, opposite trade.
+**Is this a bull trend or a bear trend?** A strong bull bar inside a bear channel is almost always a short setup, not a long. Same bar shape, completely opposite trade.
 
-**How big is this bar relative to recent ones?** A bar with a 0.8 body ratio on a slow Friday afternoon can be smaller in raw points than a 0.5 body ratio bar during the 9:30 open. Brooks would take the second one over the first.
+**How big is this bar relative to recent ones?** A bar with a 0.8 body ratio on a quiet Friday afternoon can be smaller in raw points than a 0.5 body ratio bar during the 9:30 open. Brooks would consider the second one a better signal.
 
-**Where is it sitting on the chart?** At a prior day's high? After a two-legged pullback? At a key support level? These things determine whether the signal means anything.
+**Where is it on the chart?** At a prior day's high? After a two-legged pullback? At a key support level? These details determine whether the signal is worth acting on.
 
-My code ignores all of that. It flagged 2,614 bars as "buy signal bars" — including ones sitting in bear trends, inside choppy ranges, and at random price levels with no structure behind them.
+My code ignores all of that. It flagged 2,614 bars as buy signal bars — including ones sitting in the middle of bear trends, inside choppy sideways ranges, and at price levels with zero structure behind them.
 
-Worth knowing: Al Brooks himself has said on record that he thinks backtesting price action is mostly a waste of time. Too many variables, not enough mechanical rules that hold across different contexts.
+Worth noting: Al Brooks has said on record that he thinks backtesting price action is mostly a waste of time. His argument is that there are too many context variables to ever capture in a mechanical rule.
 
-He might be right. But I want to see exactly where he's right — and whether adding context layer by layer actually changes the numbers.
+He might be right. But I want to find out *exactly* where he's right — and whether adding context layer by layer actually changes what the data shows.
 
 ---
 
-## Next Up
+## What's next
 
 The signal bar filter is done. What it needs now is context — specifically, some way to know whether the market is in a trend or grinding sideways.
 
-That's concept #02: trend vs. trading range detection. I'll try to define Brooks' directional bias in code, then combine it with this filter and see if the hit rate actually improves.
+That's concept #02: trend vs. trading range detection. I'll try to define Brooks' directional bias in code, combine it with this filter, and see if the hit rate actually changes.
 
-Code is on [GitHub](https://github.com/aktanoli/thequantscientist). If something's wrong with the logic, open an issue — I'd rather be corrected than quietly wrong.
+Code is on [GitHub](https://github.com/aktanoli/thequantscientist). If something's wrong with the logic, open an issue. I'd rather be corrected publicly than quietly wrong.
 
 ---
 
