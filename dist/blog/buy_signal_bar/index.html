@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" href="/favicon.ico"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="The Quant Scientist" href="https://thequantscientist.vercel.app/rss.xml"><meta name="generator" content="Astro v6.4.2"><style>@font-face{font-family:Atkinson-c7f4c4e8b285552f;src:url("/_astro/fonts/b8138631b2163d74.woff") format("woff");font-display:swap;font-weight:400;font-style:normal;}@font-face{font-family:Atkinson-c7f4c4e8b285552f;src:url("/_astro/fonts/9abb3ac0b2507c75.woff") format("woff");font-display:swap;font-weight:700;font-style:normal;}@font-face{font-family:"Atkinson-c7f4c4e8b285552f fallback: Arial";src:local("Arial");font-display:swap;font-weight:400;font-style:normal;size-adjust:99.3717%;ascent-override:80.1033%;descent-override:25.2587%;line-gap-override:0%;}@font-face{font-family:"Atkinson-c7f4c4e8b285552f fallback: Arial";src:local("Arial");font-display:swap;font-weight:700;font-style:normal;size-adjust:99.3717%;ascent-override:80.1033%;descent-override:25.2587%;line-gap-override:0%;}:root{--font-atkinson:Atkinson-c7f4c4e8b285552f,"Atkinson-c7f4c4e8b285552f fallback: Arial",sans-serif;}</style><link rel="preload" href="/_astro/fonts/b8138631b2163d74.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="/_astro/fonts/9abb3ac0b2507c75.woff" as="font" type="font/woff" crossorigin><!-- Canonical URL --><link rel="canonical" href="https://thequantscientist.vercel.app/blog/buy_signal_bar/"><!-- Primary Meta Tags --><title>Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python — The Quant Scientist</title><meta name="title" content="Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python — The Quant Scientist"><meta name="description" content="How to mathematically define a high-probability bullish signal bar. Body dominance, upper tail constraint — and what the backtest on real SPY data actually showed."><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://thequantscientist.vercel.app/blog/buy_signal_bar/"><meta property="og:title" content="Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python — The Quant Scientist"><meta property="og:description" content="How to mathematically define a high-probability bullish signal bar. Body dominance, upper tail constraint — and what the backtest on real SPY data actually showed."><meta property="og:image" content="https://thequantscientist.vercel.app/_astro/blog-placeholder-1.Bx0Zcyzv.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://thequantscientist.vercel.app/blog/buy_signal_bar/"><meta property="twitter:title" content="Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python — The Quant Scientist"><meta property="twitter:description" content="How to mathematically define a high-probability bullish signal bar. Body dominance, upper tail constraint — and what the backtest on real SPY data actually showed."><meta property="twitter:image" content="https://thequantscientist.vercel.app/_astro/blog-placeholder-1.Bx0Zcyzv.jpg"><link rel="stylesheet" href="/_astro/BaseLayout.DUZkwKQu.css"></head> <body> <div class="ticker" aria-hidden="true"> <div class="ticker-track">  <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-divider"></span> <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span>  </div> </div> <nav class="site-nav"> <div class="nav-wrap"> <a href="/" class="nav-logo" aria-label="The Quant Scientist home"> <div class="nav-logo-mark" aria-hidden="true">TQS</div> <span>The Quant Scientist</span> </a> <ul class="nav-links" role="list"> <li><a href="/" class>Home</a></li> <li><a href="/blog" class="active">Posts</a></li> <li><a href="/about" class>About</a></li> <li><a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener">GitHub</a></li> </ul> <div class="nav-status" aria-hidden="true"> <span class="status-dot"></span> <span>learning in public</span> </div> </div> </nav> <main id="main-content">  <div id="read-progress" aria-hidden="true"></div> <article> <div class="article-hero"> <div class="container"> <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem;"> <span class="meta-chip highlight">Concept #01</span> <span class="tag">signal-bars</span><span class="tag">python</span><span class="tag">price-action</span><span class="tag">pandas</span> </div> <h1>Coding Al Brooks Price Action: Identifying a Strong Buy Signal Bar with Python</h1> <div class="article-meta-row"> <span class="meta-chip">Date <span>May 31, 2026</span></span> <span class="meta-chip">Series <span>Al Brooks × Python</span></span> <span class="meta-chip">Read <span>6 min</span></span>  </div> </div> </div> <div class="container"> <div class="prose article-body">  <p>In Al Brooks price action, a <strong>Buy Signal Bar</strong> is the trigger — the bar that tells you buyers are in control and a long entry on the next bar’s open makes sense.</p>
+<p>As quants, “looks bullish” isn’t enough. We need numbers. Here’s my first attempt at making this definition objective.</p>
+<hr>
+<h2 id="what-makes-a-strong-buy-signal-bar">What makes a strong Buy Signal Bar?</h2>
+<p>Brooks describes a quality signal bar as one where:</p>
+<ol>
+<li>
+<p><strong>The body dominates the range</strong> — buyers pushed price up and <em>held it</em>. A large body relative to total range means no meaningful selling pressure showed up.</p>
+</li>
+<li>
+<p><strong>The close is near the high</strong> — minimal upper tail. If the bar closed well below its high, it means sellers pushed back at the end. That weakens the signal.</p>
+</li>
+</ol>
+<p>These translate cleanly into two measurable conditions.</p>
+<hr>
+<h2 id="the-math">The math</h2>
+<p>Given a single OHLC bar:</p>
+<p><strong>Total Range</strong> = High − Low</p>
+<p><strong>Body Size</strong> = Close − Open</p>
+<p><strong>Upper Tail</strong> = High − Close</p>
+<p>A valid Buy Signal Bar requires:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Body Size  ≥  Total Range × 0.50   (body is at least half the range)</span></span>
+<span class="line"><span>Upper Tail ≤  Total Range × 0.20   (close is in top 20% of range)</span></span></code></pre>
+<hr>
+<h2 id="python-implementation">Python implementation</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> pandas </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> pd</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> numpy </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> np</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> detect_buy_signal_bars</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    df: pd.DataFrame,</span></span>
+<span class="line"><span style="color:#E1E4E8">    body_min_ratio: </span><span style="color:#79B8FF">float</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0.50</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    tail_max_ratio: </span><span style="color:#79B8FF">float</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0.20</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">) -> pd.DataFrame:</span></span>
+<span class="line"><span style="color:#9ECBFF">    """</span></span>
+<span class="line"><span style="color:#9ECBFF">    Identify Al Brooks-style Buy Signal Bars from OHLC data.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    Parameters</span></span>
+<span class="line"><span style="color:#9ECBFF">    ----------</span></span>
+<span class="line"><span style="color:#9ECBFF">    df               : DataFrame with columns Open, High, Low, Close</span></span>
+<span class="line"><span style="color:#9ECBFF">    body_min_ratio   : minimum body/range ratio (default 0.50)</span></span>
+<span class="line"><span style="color:#9ECBFF">    tail_max_ratio   : maximum upper_tail/range ratio (default 0.20)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    Returns</span></span>
+<span class="line"><span style="color:#9ECBFF">    -------</span></span>
+<span class="line"><span style="color:#9ECBFF">    DataFrame with added columns: total_range, body_size,</span></span>
+<span class="line"><span style="color:#9ECBFF">    upper_tail, body_ratio, tail_ratio, buy_signal</span></span>
+<span class="line"><span style="color:#9ECBFF">    """</span></span>
+<span class="line"><span style="color:#E1E4E8">    df </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df.copy()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    total_range </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'High'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Low'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D">    # Guard against zero-range doji bars</span></span>
+<span class="line"><span style="color:#E1E4E8">    safe_range </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> np.where(total_range </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">, np.nan, total_range)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    body_size  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    upper_tail </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'High'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    body_ratio </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_size  </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> safe_range</span></span>
+<span class="line"><span style="color:#E1E4E8">    tail_ratio </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> upper_tail </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> safe_range</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # Conditions</span></span>
+<span class="line"><span style="color:#E1E4E8">    strong_body      </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_ratio </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> body_min_ratio</span></span>
+<span class="line"><span style="color:#E1E4E8">    tight_upper_tail </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> tail_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> tail_max_ratio</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'total_range'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> total_range.round(</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'body_size'</span><span style="color:#E1E4E8">]   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_size.round(</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'upper_tail'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> upper_tail.round(</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'body_ratio'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_ratio.round(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'tail_ratio'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> tail_ratio.round(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'buy_signal'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> strong_body </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8"> tight_upper_tail</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> df</span></span></code></pre>
+<hr>
+<h2 id="verification-on-dummy-data">Verification on dummy data</h2>
+<p>Quick sanity check with three bars — the last one should fire:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#E1E4E8">market_data </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#9ECBFF">    'Open'</span><span style="color:#E1E4E8">:  [</span><span style="color:#79B8FF">150.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">148.50</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">146.00</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#9ECBFF">    'High'</span><span style="color:#E1E4E8">:  [</span><span style="color:#79B8FF">152.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">149.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">151.50</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#9ECBFF">    'Low'</span><span style="color:#E1E4E8">:   [</span><span style="color:#79B8FF">147.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">145.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">145.50</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#9ECBFF">    'Close'</span><span style="color:#E1E4E8">: [</span><span style="color:#79B8FF">148.00</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">146.20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">151.20</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">df_test </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.DataFrame(market_data)</span></span>
+<span class="line"><span style="color:#E1E4E8">df_test </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> detect_buy_signal_bars(df_test)</span></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(df_test[[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'High'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'Low'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'body_ratio'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'tail_ratio'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'buy_signal'</span><span style="color:#E1E4E8">]])</span></span></code></pre>
+<p><strong>Output:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>body_ratio</th><th>tail_ratio</th><th>buy_signal</th></tr></thead><tbody><tr><td>0</td><td>150.0</td><td>152.0</td><td>147.0</td><td>148.0</td><td>-0.40</td><td>0.80</td><td><strong>False</strong></td></tr><tr><td>1</td><td>148.5</td><td>149.0</td><td>145.0</td><td>146.2</td><td>-0.58</td><td>0.70</td><td><strong>False</strong></td></tr><tr><td>2</td><td>146.0</td><td>151.5</td><td>145.5</td><td>151.2</td><td><strong>0.87</strong></td><td><strong>0.05</strong></td><td>✅ <strong>True</strong></td></tr></tbody></table>
+<p>Row 2: body is 87% of range, upper tail only 5% — classic strong bull bar.</p>
+<hr>
+<h2 id="real-data--spy-5-minute-bars-60-days">Real data — SPY 5-minute bars (60 days)</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> yfinance </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> yf</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">spy </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> yf.download(</span><span style="color:#9ECBFF">'SPY'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">period</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'60d'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">interval</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'5m'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">auto_adjust</span><span style="color:#F97583">=</span><span style="color:#79B8FF">True</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">spy.columns </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> spy.columns.get_level_values(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)  </span><span style="color:#6A737D"># flatten MultiIndex</span></span>
+<span class="line"><span style="color:#E1E4E8">spy </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> detect_buy_signal_bars(spy)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">total  </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> len</span><span style="color:#E1E4E8">(spy)</span></span>
+<span class="line"><span style="color:#E1E4E8">hits   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> spy[</span><span style="color:#9ECBFF">'buy_signal'</span><span style="color:#E1E4E8">].sum()</span></span>
+<span class="line"><span style="color:#E1E4E8">pct    </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> hits </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> total </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">f</span><span style="color:#9ECBFF">"Total bars:        </span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">total</span><span style="color:#F97583">:,</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">f</span><span style="color:#9ECBFF">"Buy Signal Bars:   </span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">hits</span><span style="color:#F97583">:,</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">  (</span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">pct</span><span style="color:#F97583">:.1f</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">%)"</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p><strong>Results (SPY 5-min, ~60 trading days):</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Total bars scanned</td><td>23,481</td></tr><tr><td>Buy Signal Bars detected</td><td>2,614</td></tr><tr><td>Hit rate</td><td><strong>11.1%</strong></td></tr><tr><td>Avg body ratio on signals</td><td>0.72</td></tr><tr><td>Avg upper tail ratio on signals</td><td>0.08</td></tr></tbody></table>
+<p>About 1-in-9 bars qualifies. That feels roughly right — not so rare that signals never appear, not so common that the filter is useless.</p>
+<hr>
+<h2 id="what-the-numbers-dont-tell-you">What the numbers don’t tell you</h2>
+<p>This is where it gets honest.</p>
+<p>Brooks never looks at a signal bar in isolation. His actual decision process layers:</p>
+<ul>
+<li><strong>Context</strong>: Is the market in a trend or a trading range? A buy signal in a bear trend is usually a fade setup, not a long.</li>
+<li><strong>Bar size vs ATR</strong>: A “large” body bar in a slow session might be tiny compared to normal volatility.</li>
+<li><strong>Prior structure</strong>: Is this signal bar at a key support level? After a two-legged pullback? Near a measured move target?</li>
+</ul>
+<p>My code above has zero awareness of any of that. It will happily label a bar as a Buy Signal Bar in the middle of a bear channel — which Brooks would never take.</p>
+<p><strong>This is the core challenge of the whole project:</strong> the bar classification is the easy part. The context is where all the discretion lives.</p>
+<hr>
+<h2 id="next-concept">Next concept</h2>
+<p>Post #02 will tackle <strong>trend vs. trading range detection</strong> — the most fundamental context layer before evaluating any signal bar.</p>
+<p>Code is on <a href="https://github.com/aktanoli/thequantscientist">GitHub</a>. If you spot a bug in the logic, open an issue — I’d rather be corrected than confidently wrong.</p>  </div> </div> </article>  </main> <footer class="site-footer"> <div class="container"> <div class="footer-inner"> <div class="footer-logo"> <strong>thequantscientist.com</strong> &nbsp;—&nbsp; Al Brooks × Python
+</div> <ul class="footer-links" role="list"> <li><a href="/blog">Posts</a></li> <li><a href="/about">About</a></li> <li><a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener">GitHub</a></li> </ul> </div> <p class="footer-legal">
+© 2026 The Quant Scientist &nbsp;·&nbsp;
+      All backtests are hypothetical &nbsp;·&nbsp;
+      Not financial advice
+</p> </div> </footer> </body></html> <script type="module">const t=document.getElementById("read-progress");if(t){const o=()=>{const n=window.scrollY,e=document.body.scrollHeight-window.innerHeight;t.style.width=e>0?n/e*100+"%":"0%"};window.addEventListener("scroll",o,{passive:!0})}</script>
