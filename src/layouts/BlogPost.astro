@@ -1,86 +1,72 @@
 ---
-import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
+import BaseLayout from './BaseLayout.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  heroImage?: string;
+  tags?: string[];
+  concept?: string;
+}
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags = [], concept } = Astro.props;
+
+const dateStr = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// rough read time from description length (expand when you have full content)
+const readTime = '6 min read';
 ---
 
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+<BaseLayout title={title} description={description} image={heroImage}>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
-</html>
+  <div id="read-progress" aria-hidden="true"></div>
+
+  <article>
+    <!-- Article hero -->
+    <div class="article-hero">
+      <div class="container">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem;">
+          {concept && (
+            <span class="meta-chip highlight">Concept #{concept}</span>
+          )}
+          {tags.map(tag => <span class="tag">{tag}</span>)}
+        </div>
+
+        <h1>{title}</h1>
+
+        <div class="article-meta-row">
+          <span class="meta-chip">Date <span>{dateStr}</span></span>
+          <span class="meta-chip">Series <span>Al Brooks × Python</span></span>
+          <span class="meta-chip">Read <span>{readTime}</span></span>
+          {updatedDate && (
+            <span class="meta-chip">Updated <span>{updatedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></span>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Article body -->
+    <div class="container">
+      <div class="prose article-body">
+        <slot />
+      </div>
+    </div>
+  </article>
+
+</BaseLayout>
+
+<script>
+  const bar = document.getElementById('read-progress');
+  if (bar) {
+    const update = () => {
+      const scrolled = window.scrollY;
+      const total    = document.body.scrollHeight - window.innerHeight;
+      bar.style.width = total > 0 ? (scrolled / total * 100) + '%' : '0%';
+    };
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>
