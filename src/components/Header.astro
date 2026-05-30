@@ -6,25 +6,40 @@ const isActive = (path: string) => {
 };
 ---
 
-<nav class="site-nav">
+<nav class="site-nav" id="site-nav">
   <div class="nav-wrap">
-
-    <a href="/" class="nav-logo" aria-label="The Quant Scientist home">
-      <div class="nav-logo-mark" aria-hidden="true">TQS</div>
+    <a href="/" class="nav-logo" aria-label="The Quant Scientist">
+      <div class="nav-logo-mark">TQS</div>
       <span>The Quant Scientist</span>
     </a>
 
-    <ul class="nav-links" role="list">
-      <li><a href="/" class={isActive('/') ? 'active' : ''}>Home</a></li>
+    <ul class="nav-center" role="list">
+      <li><a href="/"     class={isActive('/') ? 'active' : ''}>Home</a></li>
       <li><a href="/blog" class={isActive('/blog') ? 'active' : ''}>Posts</a></li>
       <li><a href="/about" class={isActive('/about') ? 'active' : ''}>About</a></li>
-      <li><a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
 
-    <div class="nav-status" aria-hidden="true">
-      <span class="status-dot"></span>
-      <span>learning in public</span>
+    <div class="nav-right">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
+      <a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener" class="nav-github">GitHub ↗</a>
     </div>
-
   </div>
 </nav>
+
+<script>
+  const html   = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const stored = localStorage.getItem('theme');
+  const prefer = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Set initial theme
+  if (stored === 'dark' || (!stored && prefer)) {
+    html.setAttribute('data-theme', 'dark');
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  });
+</script>
