@@ -1,79 +1,43 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+import BaseLayout from '../layouts/BaseLayout.astro';
+const posts = (await getCollection('blog')).sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
-
 <BaseLayout title="Home">
-
-  <!-- Hero -->
   <section class="hero">
-    <div class="hero-grid-overlay" aria-hidden="true"></div>
     <div class="container">
-      <div class="hero-label">The Quant Scientist</div>
+      <div class="hero-kicker">The Quant Scientist</div>
       <h1>Al Brooks price action,<br /><em>measured in code.</em></h1>
-      <p class="hero-desc">
-        Learning Brooks from scratch and backtesting every concept in Python.
-        No holy grails. Just data, charts, and honest results.
-      </p>
-
+      <p class="hero-desc">Learning Brooks from scratch and backtesting every concept in Python. No holy grails — just data, charts, and honest results.</p>
       <div class="hero-stats">
-        <div class="hero-stat">
-          <span class="hero-stat-val">{posts.length}</span>
-          <span class="hero-stat-label">Concepts coded</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-val">10</span>
-          <span class="hero-stat-label">Planned concepts</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-val">Python</span>
-          <span class="hero-stat-label">Primary stack</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-val">ES / NQ</span>
-          <span class="hero-stat-label">Instruments</span>
-        </div>
+        <div class="stat"><span class="stat-val">{posts.length}</span><span class="stat-label">Concepts coded</span></div>
+        <div class="stat"><span class="stat-val">10</span><span class="stat-label">Planned concepts</span></div>
+        <div class="stat"><span class="stat-val">Python</span><span class="stat-label">Primary stack</span></div>
+        <div class="stat"><span class="stat-val">ES · NQ</span><span class="stat-label">Instruments</span></div>
       </div>
     </div>
   </section>
 
-  <!-- Posts -->
   <section class="posts-section">
     <div class="container">
-      <div class="posts-section-header">
-        <span class="section-eyebrow">Latest posts</span>
-        <a href="/blog" style="font-family:var(--mono); font-size:0.72rem; color:var(--amber); letter-spacing:0.08em;">
-          View all →
-        </a>
+      <div class="section-header">
+        <span class="section-label">Latest posts</span>
+        <a href="/blog" class="view-all">View all →</a>
       </div>
-
       {posts.length === 0 ? (
-        <div class="empty-state">
-          <p>First post coming soon</p>
-        </div>
+        <div class="empty-state"><p>First post coming soon</p></div>
       ) : (
         <div class="posts-grid">
-          {posts.map((post) => (
+          {posts.map(post => (
             <a href={`/blog/${post.id}/`} class="post-card">
               <div class="post-card-top">
-                {post.data.concept
-                  ? <span class="post-num">#{post.data.concept}</span>
-                  : <span></span>
-                }
-                <span class="post-date">
-                  {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </span>
+                {post.data.concept ? <span class="concept-badge">#{post.data.concept}</span> : <span></span>}
+                <span class="post-date">{post.data.pubDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
               </div>
               <h2>{post.data.title}</h2>
               <p>{post.data.description}</p>
               {post.data.tags && post.data.tags.length > 0 && (
-                <div class="post-tags">
-                  {post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
-                </div>
+                <div class="post-tags">{post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}</div>
               )}
             </a>
           ))}
@@ -81,5 +45,4 @@ const posts = (await getCollection('blog')).sort(
       )}
     </div>
   </section>
-
 </BaseLayout>
