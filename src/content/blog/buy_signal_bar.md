@@ -4,7 +4,6 @@ description: 'How to mathematically define a high-probability bullish signal bar
 pubDate: 2026-05-31
 concept: '01'
 tags: ['signal-bars', 'python', 'price-action', 'pandas']
-heroImage: '/blog-placeholder-1.jpg'
 ---
 
 In Al Brooks price action, a **Buy Signal Bar** is the trigger — the bar that tells you buyers are in control and a long entry on the next bar's open makes sense.
