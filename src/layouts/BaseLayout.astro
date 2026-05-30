@@ -8,10 +8,9 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 interface Props {
   title: string;
   description?: string;
-  image?: string;
 }
 
-const { title, description = SITE_DESCRIPTION, image } = Astro.props;
+const { title, description = SITE_DESCRIPTION } = Astro.props;
 const fullTitle = title === 'Home' ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
 ---
 
