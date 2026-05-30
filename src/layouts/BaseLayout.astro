@@ -1,8 +1,9 @@
 ---
-import '../styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Ticker from '../components/Ticker.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
 interface Props {
   title: string;
@@ -10,37 +11,14 @@ interface Props {
   image?: string;
 }
 
-const {
-  title,
-  description = 'Quantitative analysis of Al Brooks price action — one concept, one Python implementation, one backtest at a time.',
-  image,
-} = Astro.props;
-
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const fullTitle = title === 'Home' ? 'The Quant Scientist' : `${title} — The Quant Scientist`;
+const { title, description = SITE_DESCRIPTION, image } = Astro.props;
+const fullTitle = title === 'Home' ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
 ---
 
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="generator" content={Astro.generator} />
-
-  <title>{fullTitle}</title>
-  <meta name="description" content={description} />
-  <link rel="canonical" href={canonicalURL} />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content={canonicalURL} />
-  <meta property="og:title" content={fullTitle} />
-  <meta property="og:description" content={description} />
-  {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={fullTitle} />
-  <meta name="twitter:description" content={description} />
+  <BaseHead title={fullTitle} description={description} />
 </head>
 <body>
   <Ticker />
