@@ -58,7 +58,7 @@ const posts = (await getCollection('blog')).sort(
       ) : (
         <div class="posts-grid">
           {posts.map((post) => (
-            <a href={`/blog/${post.slug}/`} class="post-card">
+            <a href={`/blog/${post.id}/`} class="post-card">
               <div class="post-card-top">
                 {post.data.concept
                   ? <span class="post-num">#{post.data.concept}</span>
