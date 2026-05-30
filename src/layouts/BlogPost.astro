@@ -11,45 +11,35 @@ interface Props {
   concept?: string;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, tags = [], concept } = Astro.props;
+const { title, description, pubDate, updatedDate, tags = [], concept } = Astro.props;
 
 const dateStr = pubDate.toLocaleDateString('en-US', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
-
-// rough read time from description length (expand when you have full content)
-const readTime = '6 min read';
 ---
 
-<BaseLayout title={title} description={description} image={heroImage}>
+<BaseLayout title={title} description={description}>
 
   <div id="read-progress" aria-hidden="true"></div>
 
   <article>
-    <!-- Article hero -->
     <div class="article-hero">
       <div class="container">
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem;">
-          {concept && (
-            <span class="meta-chip highlight">Concept #{concept}</span>
-          )}
+          {concept && <span class="meta-chip highlight">Concept #{concept}</span>}
           {tags.map(tag => <span class="tag">{tag}</span>)}
         </div>
-
         <h1>{title}</h1>
-
         <div class="article-meta-row">
           <span class="meta-chip">Date <span>{dateStr}</span></span>
           <span class="meta-chip">Series <span>Al Brooks × Python</span></span>
-          <span class="meta-chip">Read <span>{readTime}</span></span>
+          <span class="meta-chip">Read <span>6 min</span></span>
           {updatedDate && (
-            <span class="meta-chip">Updated <span>{updatedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></span>
+            <span class="meta-chip">Updated <span>{updatedDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}</span></span>
           )}
         </div>
       </div>
     </div>
-
-    <!-- Article body -->
     <div class="container">
       <div class="prose article-body">
         <slot />
@@ -64,7 +54,7 @@ const readTime = '6 min read';
   if (bar) {
     const update = () => {
       const scrolled = window.scrollY;
-      const total    = document.body.scrollHeight - window.innerHeight;
+      const total = document.body.scrollHeight - window.innerHeight;
       bar.style.width = total > 0 ? (scrolled / total * 100) + '%' : '0%';
     };
     window.addEventListener('scroll', update, { passive: true });
