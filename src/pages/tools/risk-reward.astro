@@ -2,309 +2,327 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Risk/Reward Calculator" description="Free risk/reward calculator for traders. Enter entry, stop loss and target to get R:R ratio, position size, dollar risk and break-even win rate instantly.">
+<BaseLayout title="Risk/Reward Calculator" description="Free risk/reward calculator for traders. Entry, stop loss, target — instant R:R ratio, position size, dollar risk, and break-even win rate.">
 
   <div class="page-header">
     <div class="container">
       <div class="hero-kicker">Tools → Risk / Reward</div>
       <h1>Risk / Reward<br /><em>Calculator</em></h1>
+      <p style="color:var(--text-2);font-size:0.95rem;margin-top:0.5rem;">Enter your trade levels — results update instantly.</p>
     </div>
   </div>
 
   <div class="container" style="padding-bottom:5rem;">
-    <div id="rr-app"></div>
-  </div>
-
-</BaseLayout>
-
-<style>
-  /* Tool-specific styles scoped to this page */
-  .rr-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: start;
-    max-width: 900px;
-  }
-  @media(max-width:680px){ .rr-grid { grid-template-columns:1fr; } }
-
-  .rr-panel {
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.75rem;
-  }
-
-  .rr-panel-title {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: 1.25rem;
-  }
-
-  .field { margin-bottom: 1.1rem; }
-
-  .field label {
-    display: block;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-  }
-
-  .field input, .field select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border-md);
-    border-radius: 4px;
-    padding: 0.65rem 0.85rem;
-    font-family: var(--mono);
-    font-size: 0.95rem;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-    -moz-appearance: textfield;
-  }
-  .field input::-webkit-outer-spin-button,
-  .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .field input:focus, .field select:focus { border-color: var(--accent); }
-
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-3);
-    letter-spacing: 0.04em;
-  }
-
-  .stat-val {
-    font-family: var(--mono);
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .stat-val.good { color: #2D6A4F; }
-  .stat-val.warn { color: #B45309; }
-  .stat-val.bad  { color: #9B2335; }
-
-  .rr-bar-wrap {
-    margin: 1.25rem 0;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    height: 10px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .rr-bar-risk {
-    position: absolute; left: 0; top: 0; bottom: 0;
-    background: #9B2335;
-    transition: width 0.3s ease;
-  }
-
-  .rr-bar-reward {
-    position: absolute; top: 0; bottom: 0;
-    background: #2D6A4F;
-    transition: width 0.3s ease, left 0.3s ease;
-  }
-
-  .rr-big {
-    text-align: center;
-    padding: 1.5rem 0 1rem;
-  }
-
-  .rr-big-num {
-    font-family: var(--serif);
-    font-size: 3.5rem;
-    font-weight: 400;
-    line-height: 1;
-    color: var(--text);
-  }
-
-  .rr-big-label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--text-3);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 0.4rem;
-  }
-
-  .rr-verdict {
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    margin-top: 0.75rem;
-    letter-spacing: 0.04em;
-  }
-
-  .verdict-good { background: rgba(45,106,79,0.12); color: #2D6A4F; border: 1px solid rgba(45,106,79,0.25); }
-  .verdict-warn { background: rgba(180,83,9,0.10);  color: #B45309; border: 1px solid rgba(180,83,9,0.2); }
-  .verdict-bad  { background: rgba(155,35,53,0.10); color: #9B2335; border: 1px solid rgba(155,35,53,0.2); }
-
-  .direction-toggle {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .dir-btn {
-    flex: 1;
-    padding: 0.5rem;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: 1px solid var(--border-md);
-    border-radius: 4px;
-    cursor: pointer;
-    background: var(--bg);
-    color: var(--text-3);
-    transition: all 0.15s;
-  }
-
-  .dir-btn.active-long  { background: rgba(45,106,79,0.12);  color: #2D6A4F; border-color: #2D6A4F; }
-  .dir-btn.active-short { background: rgba(155,35,53,0.10);  color: #9B2335; border-color: #9B2335; }
-
-  .note {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--text-3);
-    line-height: 1.7;
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
-  }
-</style>
-
-<script>
-(function() {
-  const app = document.getElementById('rr-app');
-  app.innerHTML = `
     <div class="rr-grid">
 
       <!-- LEFT: Inputs -->
       <div class="rr-panel">
         <div class="rr-panel-title">Trade parameters</div>
 
-        <div class="direction-toggle">
-          <button class="dir-btn active-long" id="btn-long" onclick="setDir('long')">▲ Long</button>
-          <button class="dir-btn" id="btn-short" onclick="setDir('short')">▼ Short</button>
+        <div class="dir-row">
+          <button class="dir-btn long active-long" id="btn-long" onclick="setDir('long')">▲ Long</button>
+          <button class="dir-btn short" id="btn-short" onclick="setDir('short')">▼ Short</button>
         </div>
 
-        <div class="field">
+        <div class="rr-field">
           <label>Entry price</label>
           <input type="number" id="entry" value="5000" step="0.25" oninput="calc()" />
         </div>
-
-        <div class="field">
+        <div class="rr-field">
           <label>Stop loss</label>
           <input type="number" id="stop" value="4985" step="0.25" oninput="calc()" />
         </div>
-
-        <div class="field">
+        <div class="rr-field">
           <label>Target (take profit)</label>
           <input type="number" id="target" value="5030" step="0.25" oninput="calc()" />
         </div>
 
-        <div class="field-row">
-          <div class="field">
+        <div class="rr-field-row">
+          <div class="rr-field">
             <label>Account size ($)</label>
             <input type="number" id="account" value="10000" step="100" oninput="calc()" />
           </div>
-          <div class="field">
+          <div class="rr-field">
             <label>Risk per trade (%)</label>
             <input type="number" id="riskpct" value="1" step="0.1" min="0.1" max="10" oninput="calc()" />
           </div>
         </div>
 
-        <div class="field">
+        <div class="rr-field">
           <label>Instrument</label>
           <select id="instrument" onchange="calc()">
             <option value="1" selected>Stocks / ETF (1 share = $1)</option>
             <option value="50">ES Futures (1 point = $50)</option>
             <option value="20">NQ Futures (1 point = $20)</option>
-            <option value="1000">BTC (1 BTC = $1 multiplier)</option>
-            <option value="1">Custom (set multiplier below)</option>
+            <option value="5">MES Micro (1 point = $5)</option>
+            <option value="2">MNQ Micro (1 point = $2)</option>
           </select>
         </div>
 
-        <div class="note">
-          All calculations are educational only. Not financial advice.
-        </div>
+        <p class="rr-disclaimer">Educational only — not financial advice.</p>
       </div>
 
       <!-- RIGHT: Results -->
       <div class="rr-panel">
         <div class="rr-panel-title">Results</div>
 
-        <!-- Big RR number -->
-        <div class="rr-big">
-          <div class="rr-big-num" id="rr-display">2.0R</div>
-          <div class="rr-big-label">Risk / Reward ratio</div>
-          <div class="rr-bar-wrap">
-            <div class="rr-bar-risk" id="bar-risk" style="width:33%"></div>
-            <div class="rr-bar-reward" id="bar-reward" style="left:33%;width:67%"></div>
+        <!-- Big RR -->
+        <div class="rr-hero">
+          <div class="rr-hero-num" id="rr-display">2.00R</div>
+          <div class="rr-hero-label">Risk / Reward Ratio</div>
+        </div>
+
+        <!-- Bar -->
+        <div class="rr-bar-wrap">
+          <div class="rr-bar-risk"   id="bar-risk"   style="width:33%"></div>
+          <div class="rr-bar-reward" id="bar-reward" style="width:67%"></div>
+        </div>
+        <div class="rr-bar-labels">
+          <span id="bar-label-risk">Risk 33%</span>
+          <span id="bar-label-reward">Reward 67%</span>
+        </div>
+
+        <!-- Verdict -->
+        <div class="rr-verdict verdict-good" id="verdict">
+          Good — reward exceeds 2× risk
+        </div>
+
+        <!-- Stats grid -->
+        <div class="rr-stats">
+          <div class="rr-stat">
+            <div class="rr-stat-label">Risk (pts)</div>
+            <div class="rr-stat-val" id="risk-pts">15.00</div>
           </div>
-          <div class="rr-verdict verdict-good" id="verdict">Good setup — reward exceeds 2× risk</div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Reward (pts)</div>
+            <div class="rr-stat-val" id="reward-pts">30.00</div>
+          </div>
+          <div class="rr-stat rr-stat-danger">
+            <div class="rr-stat-label">Dollar risk</div>
+            <div class="rr-stat-val" id="dollar-risk">$100.00</div>
+          </div>
+          <div class="rr-stat rr-stat-success">
+            <div class="rr-stat-label">Dollar profit</div>
+            <div class="rr-stat-val" id="dollar-profit">$200.00</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Position size</div>
+            <div class="rr-stat-val" id="pos-size">6</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Break-even win%</div>
+            <div class="rr-stat-val" id="breakeven">33.3%</div>
+          </div>
         </div>
 
-        <!-- Stats -->
-        <div class="stat-row">
-          <span class="stat-label">Risk (points / ticks)</span>
-          <span class="stat-val" id="risk-pts">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Reward (points / ticks)</span>
-          <span class="stat-val" id="reward-pts">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Dollar risk</span>
-          <span class="stat-val bad" id="dollar-risk">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Dollar profit (if hit)</span>
-          <span class="stat-val good" id="dollar-profit">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Position size (units)</span>
-          <span class="stat-val" id="pos-size">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Break-even win rate</span>
-          <span class="stat-val" id="breakeven">—</span>
-        </div>
       </div>
-
     </div>
-  `;
+  </div>
 
+</BaseLayout>
+
+<style>
+.rr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  max-width: 860px;
+}
+@media (max-width: 680px) { .rr-grid { grid-template-columns: 1fr; } }
+
+.rr-panel {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.75rem;
+}
+
+.rr-panel-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Direction buttons */
+.dir-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.dir-btn {
+  flex: 1;
+  padding: 0.55rem 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid var(--border-md);
+  background: var(--bg);
+  color: var(--text-3);
+  transition: all 0.15s;
+}
+.dir-btn:hover { color: var(--text); }
+.dir-btn.active-long  { background: rgba(45,106,79,0.12); color: #2D6A4F; border-color: rgba(45,106,79,0.4); }
+.dir-btn.active-short { background: rgba(155,35,53,0.10); color: #9B2335; border-color: rgba(155,35,53,0.35); }
+
+/* Fields */
+.rr-field { margin-bottom: 1rem; }
+.rr-field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+.rr-field input,
+.rr-field select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border-md);
+  border-radius: 5px;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+.rr-field input::-webkit-outer-spin-button,
+.rr-field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.rr-field input:focus,
+.rr-field select:focus { border-color: var(--accent); }
+
+.rr-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.rr-disclaimer {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-4);
+  margin: 1rem 0 0;
+  line-height: 1.6;
+}
+
+/* Results hero */
+.rr-hero {
+  text-align: center;
+  padding: 1.5rem 0 1.1rem;
+}
+.rr-hero-num {
+  font-family: var(--serif);
+  font-size: 3.8rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  transition: color 0.2s;
+}
+.rr-hero-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+
+/* Bar */
+.rr-bar-wrap {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+  border: 1px solid var(--border);
+}
+.rr-bar-risk {
+  background: #9B2335;
+  transition: width 0.3s ease;
+}
+.rr-bar-reward {
+  background: #2D6A4F;
+  transition: width 0.3s ease;
+}
+.rr-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-3);
+  margin-bottom: 1rem;
+}
+
+/* Verdict */
+.rr-verdict {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+}
+.verdict-good { background: rgba(45,106,79,0.1);  color: #2D6A4F; border: 1px solid rgba(45,106,79,0.25); }
+.verdict-warn { background: rgba(180,83,9,0.09);   color: #92400E; border: 1px solid rgba(180,83,9,0.22); }
+.verdict-bad  { background: rgba(155,35,53,0.09);  color: #9B2335; border: 1px solid rgba(155,35,53,0.22); }
+
+/* Stats grid */
+.rr-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.rr-stat {
+  background: var(--bg-2);
+  padding: 0.85rem 1rem;
+  transition: background 0.15s;
+}
+.rr-stat:hover { background: var(--bg-hover); }
+.rr-stat-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.rr-stat-val {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.rr-stat-danger .rr-stat-val { color: #9B2335; }
+.rr-stat-success .rr-stat-val { color: #2D6A4F; }
+</style>
+
+<script>
   let direction = 'long';
 
   window.setDir = function(dir) {
     direction = dir;
-    document.getElementById('btn-long').className  = 'dir-btn' + (dir==='long'  ? ' active-long'  : '');
-    document.getElementById('btn-short').className = 'dir-btn' + (dir==='short' ? ' active-short' : '');
-
-    // Flip stop/target hints
+    document.getElementById('btn-long').className  = 'dir-btn long'  + (dir==='long'  ? ' active-long'  : '');
+    document.getElementById('btn-short').className = 'dir-btn short' + (dir==='short' ? ' active-short' : '');
     const entry = parseFloat(document.getElementById('entry').value) || 5000;
     if (dir === 'long') {
       document.getElementById('stop').value   = (entry * 0.997).toFixed(2);
@@ -326,63 +344,58 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     const riskPts   = Math.abs(entry - stop);
     const rewardPts = Math.abs(target - entry);
+    if (!riskPts || !rewardPts) return;
 
-    if (riskPts === 0 || rewardPts === 0) return;
-
-    // Validate direction
     const validLong  = direction === 'long'  && stop < entry && target > entry;
     const validShort = direction === 'short' && stop > entry && target < entry;
 
     const rr = rewardPts / riskPts;
-    const dollarRiskPerUnit  = riskPts   * mult;
-    const dollarRewardPerUnit= rewardPts * mult;
-    const maxDollarRisk      = account * (riskPct / 100);
-    const posSize            = dollarRiskPerUnit > 0 ? maxDollarRisk / dollarRiskPerUnit : 0;
-    const totalDollarRisk    = posSize * dollarRiskPerUnit;
-    const totalDollarReward  = posSize * dollarRewardPerUnit;
-    const breakeven          = 1 / (1 + rr) * 100;
+    const dollarRiskPerUnit   = riskPts   * mult;
+    const dollarRewardPerUnit = rewardPts * mult;
+    const maxDollarRisk = account * (riskPct / 100);
+    const posSize = dollarRiskPerUnit > 0 ? maxDollarRisk / dollarRiskPerUnit : 0;
+    const totalRisk   = posSize * dollarRiskPerUnit;
+    const totalReward = posSize * dollarRewardPerUnit;
+    const breakeven   = 1 / (1 + rr) * 100;
 
-    // Update big display
+    // Big number
     document.getElementById('rr-display').textContent = rr.toFixed(2) + 'R';
 
     // Bar
     const riskW = 100 / (1 + rr);
-    document.getElementById('bar-risk').style.width    = riskW + '%';
-    document.getElementById('bar-reward').style.left   = riskW + '%';
-    document.getElementById('bar-reward').style.width  = (100 - riskW) + '%';
+    document.getElementById('bar-risk').style.width   = riskW.toFixed(1) + '%';
+    document.getElementById('bar-reward').style.width = (100 - riskW).toFixed(1) + '%';
+    document.getElementById('bar-label-risk').textContent   = 'Risk ' + riskW.toFixed(0) + '%';
+    document.getElementById('bar-label-reward').textContent = 'Reward ' + (100-riskW).toFixed(0) + '%';
 
     // Verdict
-    const verdictEl = document.getElementById('verdict');
+    const v = document.getElementById('verdict');
     if (!validLong && !validShort) {
-      verdictEl.className = 'rr-verdict verdict-warn';
-      verdictEl.textContent = 'Check direction — stop/target may be reversed';
+      v.className = 'rr-verdict verdict-warn';
+      v.textContent = 'Check direction — stop or target may be reversed';
+    } else if (rr >= 3) {
+      v.className = 'rr-verdict verdict-good';
+      v.textContent = 'Excellent — reward is ' + rr.toFixed(1) + '× the risk';
     } else if (rr >= 2) {
-      verdictEl.className = 'rr-verdict verdict-good';
-      verdictEl.textContent = rr >= 3 ? 'Excellent — reward is ' + rr.toFixed(1) + '× the risk' : 'Good — reward exceeds 2× risk';
+      v.className = 'rr-verdict verdict-good';
+      v.textContent = 'Good — reward exceeds 2× risk';
     } else if (rr >= 1) {
-      verdictEl.className = 'rr-verdict verdict-warn';
-      verdictEl.textContent = 'Marginal — need a high win rate to be profitable';
+      v.className = 'rr-verdict verdict-warn';
+      v.textContent = 'Marginal — needs a high win rate to be profitable';
     } else {
-      verdictEl.className = 'rr-verdict verdict-bad';
-      verdictEl.textContent = 'Poor — risking more than you stand to gain';
+      v.className = 'rr-verdict verdict-bad';
+      v.textContent = 'Poor — risking more than you stand to gain';
     }
 
     // Stats
     const fmt = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-
-    document.getElementById('risk-pts').textContent    = riskPts.toFixed(2);
-    document.getElementById('reward-pts').textContent  = rewardPts.toFixed(2);
-    document.getElementById('dollar-risk').textContent = fmt(totalDollarRisk);
-    document.getElementById('dollar-profit').textContent = fmt(totalDollarReward);
-    document.getElementById('pos-size').textContent    = posSize < 1 ? posSize.toFixed(3) : Math.floor(posSize).toString();
-    document.getElementById('breakeven').textContent   = breakeven.toFixed(1) + '%';
-
-    // Color breakeven
-    const beEl = document.getElementById('breakeven');
-    beEl.className = 'stat-val' + (breakeven <= 35 ? ' good' : breakeven <= 50 ? '' : ' warn');
+    document.getElementById('risk-pts').textContent     = riskPts.toFixed(2);
+    document.getElementById('reward-pts').textContent   = rewardPts.toFixed(2);
+    document.getElementById('dollar-risk').textContent  = fmt(totalRisk);
+    document.getElementById('dollar-profit').textContent= fmt(totalReward);
+    document.getElementById('pos-size').textContent     = posSize < 1 ? posSize.toFixed(3) : Math.floor(posSize).toString();
+    document.getElementById('breakeven').textContent    = breakeven.toFixed(1) + '%';
   };
 
-  // Run on load
-  calc();
-})();
+  document.addEventListener('DOMContentLoaded', calc);
 </script>
