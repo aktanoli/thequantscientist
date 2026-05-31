@@ -14,13 +14,14 @@ const isActive = (path: string) => {
     </a>
 
     <ul class="nav-center" role="list">
-      <li><a href="/"     class={isActive('/') ? 'active' : ''}>Home</a></li>
-      <li><a href="/blog" class={isActive('/blog') ? 'active' : ''}>Posts</a></li>
+      <li><a href="/"      class={isActive('/') ? 'active' : ''}>Home</a></li>
+      <li><a href="/blog"  class={isActive('/blog') ? 'active' : ''}>Posts</a></li>
+      <li><a href="/tools" class={isActive('/tools') ? 'active' : ''}>Tools</a></li>
       <li><a href="/about" class={isActive('/about') ? 'active' : ''}>About</a></li>
     </ul>
 
     <div class="nav-right">
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button>
       <a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener" class="nav-github">GitHub ↗</a>
     </div>
   </div>
@@ -31,12 +32,9 @@ const isActive = (path: string) => {
   const toggle = document.getElementById('theme-toggle');
   const stored = localStorage.getItem('theme');
   const prefer = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  // Set initial theme
   if (stored === 'dark' || (!stored && prefer)) {
     html.setAttribute('data-theme', 'dark');
   }
-
   toggle?.addEventListener('click', () => {
     const isDark = html.getAttribute('data-theme') === 'dark';
     html.setAttribute('data-theme', isDark ? 'light' : 'dark');
