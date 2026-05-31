@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Drawdown Recovery Calculator" description="How much do you need to recover from a drawdown? The math is brutal — see exactly what it takes to get back to breakeven.">
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-kicker">Tools → Drawdown Recovery</div>
+      <h1>Drawdown Recovery<br /><em>Calculator</em></h1>
+      <p style="color:var(--text-2);font-size:0.95rem;margin-top:0.5rem;">The math of losing is asymmetric. A 50% loss needs a 100% gain to recover.</p>
+    </div>
+  </div>
+  <div class="container" style="padding-bottom:5rem;">
+    <div class="rr-grid">
+      <div class="rr-panel">
+        <div class="rr-panel-title">Your drawdown</div>
+        <div class="rr-field">
+          <label>Starting account ($)</label>
+          <input type="number" id="start-bal" value="10000" step="100" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Drawdown (%)</label>
+          <input type="range" id="dd-slider" min="1" max="90" value="20" step="1" oninput="syncSlider(); calc()" style="width:100%;accent-color:var(--accent);" />
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">1%</span>
+            <input type="number" id="dd-num" value="20" min="1" max="90" step="1" oninput="syncNum(); calc()" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">90%</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>Risk per trade (%)</label>
+          <input type="number" id="risk-per" value="1" step="0.1" min="0.1" max="5" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Win rate (%)</label>
+          <input type="number" id="wr" value="50" step="1" min="1" max="99" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Avg R:R ratio</label>
+          <input type="number" id="rr-val" value="2" step="0.1" min="0.1" oninput="calc()" />
+        </div>
+        <p class="rr-disclaimer">Educational only — not financial advice.</p>
+      </div>
+      <div class="rr-panel">
+        <div class="rr-panel-title">Recovery math</div>
+        <div class="rr-hero">
+          <div class="rr-hero-num" id="recover-pct" style="color:#9B2335;">25.0%</div>
+          <div class="rr-hero-label">Gain needed to recover</div>
+        </div>
+        <div class="rr-stats" style="margin-bottom:1.25rem;">
+          <div class="rr-stat">
+            <div class="rr-stat-label">Account after DD</div>
+            <div class="rr-stat-val" id="bal-after">$8,000</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Dollar loss</div>
+            <div class="rr-stat-val rr-stat-danger" id="dollar-loss">$2,000</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Trades to recover (est.)</div>
+            <div class="rr-stat-val" id="trades-needed">—</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Expectancy per trade</div>
+            <div class="rr-stat-val" id="expectancy">—</div>
+          </div>
+        </div>
+        <div class="rr-verdict verdict-warn" id="dd-verdict">Manageable — but takes discipline to recover</div>
+        <div style="margin-top:1.25rem;">
+          <div class="rr-panel-title" style="margin-bottom:0.75rem;">Drawdown vs recovery required</div>
+          <div id="dd-table" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-family:var(--mono);font-size:0.72rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.rr-grid { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;max-width:860px; }
+@media(max-width:680px){ .rr-grid{grid-template-columns:1fr;} }
+.rr-panel { background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1.75rem; }
+.rr-panel-title { font-family:var(--mono);font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border); }
+.rr-field { margin-bottom:1rem; }
+.rr-field label { display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.35rem; }
+.rr-field input[type="number"] { width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:5px;padding:0.6rem 0.85rem;font-family:var(--mono);font-size:0.92rem;color:var(--text);outline:none;transition:border-color 0.15s;-moz-appearance:textfield; }
+.rr-field input[type="number"]::-webkit-outer-spin-button,.rr-field input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.rr-field input:focus { border-color:var(--accent); }
+.rr-disclaimer { font-family:var(--mono);font-size:0.65rem;color:var(--text-4);margin:1rem 0 0;line-height:1.6; }
+.rr-hero { text-align:center;padding:1.25rem 0 1rem; }
+.rr-hero-num { font-family:var(--serif);font-size:3.8rem;font-weight:400;line-height:1;letter-spacing:-0.02em;transition:color 0.2s; }
+.rr-hero-label { font-family:var(--mono);font-size:0.65rem;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.4rem; }
+.rr-stats { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden; }
+.rr-stat { background:var(--bg-2);padding:0.85rem 1rem; }
+.rr-stat-label { font-family:var(--mono);font-size:0.62rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem; }
+.rr-stat-val { font-family:var(--mono);font-size:1.1rem;font-weight:500;color:var(--text); }
+.rr-stat-danger { color:#9B2335; }
+.rr-verdict { text-align:center;font-family:var(--mono);font-size:0.75rem;padding:0.55rem 1rem;border-radius:5px;letter-spacing:0.03em;transition:all 0.2s; }
+.verdict-good { background:rgba(45,106,79,0.1);color:#2D6A4F;border:1px solid rgba(45,106,79,0.25); }
+.verdict-warn { background:rgba(180,83,9,0.09);color:#92400E;border:1px solid rgba(180,83,9,0.22); }
+.verdict-bad  { background:rgba(155,35,53,0.09);color:#9B2335;border:1px solid rgba(155,35,53,0.22); }
+.dd-cell { padding:6px 8px;background:var(--bg-2); }
+.dd-cell.header { background:var(--bg-3);color:var(--text-3);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase; }
+.dd-cell.active { background:rgba(155,35,53,0.12);color:#9B2335;font-weight:500; }
+</style>
+
+<script>
+function syncSlider(){ document.getElementById('dd-num').value = document.getElementById('dd-slider').value; }
+function syncNum(){ document.getElementById('dd-slider').value = document.getElementById('dd-num').value; }
+
+function fmt(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function calc(){
+  const start = parseFloat(document.getElementById('start-bal').value)||10000;
+  const dd    = parseFloat(document.getElementById('dd-num').value)||20;
+  const riskP = parseFloat(document.getElementById('risk-per').value)||1;
+  const wr    = parseFloat(document.getElementById('wr').value)||50;
+  const rr    = parseFloat(document.getElementById('rr-val').value)||2;
+
+  const loss     = start * dd/100;
+  const balAfter = start - loss;
+  const recoverPct = (loss / balAfter)*100;
+
+  const expectancy = (wr/100 * rr) - ((1-wr/100) * 1);
+  const avgWinDollar = balAfter * (riskP/100) * rr;
+  const avgLossDollar = balAfter * (riskP/100);
+  const expPerTrade = (wr/100)*avgWinDollar - (1-wr/100)*avgLossDollar;
+  const tradesNeeded = expPerTrade > 0 ? Math.ceil(loss / expPerTrade) : Infinity;
+
+  document.getElementById('recover-pct').textContent = recoverPct.toFixed(1)+'%';
+  document.getElementById('recover-pct').style.color = dd>40?'#9B2335':dd>20?'#92400E':'#2D6A4F';
+  document.getElementById('bal-after').textContent = fmt(balAfter);
+  document.getElementById('dollar-loss').textContent = fmt(loss);
+  document.getElementById('trades-needed').textContent = tradesNeeded===Infinity?'∞ (negative edge)':tradesNeeded+'+ trades';
+  document.getElementById('expectancy').textContent = expectancy.toFixed(3)+'R';
+
+  const v = document.getElementById('dd-verdict');
+  if(dd<=10){ v.className='rr-verdict verdict-good'; v.textContent='Normal — every trader faces this. Stay disciplined.'; }
+  else if(dd<=25){ v.className='rr-verdict verdict-warn'; v.textContent='Significant — recovery requires meaningful gain.'; }
+  else if(dd<=50){ v.className='rr-verdict verdict-bad'; v.textContent='Severe — rethink position sizing and risk rules.'; }
+  else{ v.className='rr-verdict verdict-bad'; v.textContent='Critical — a '+recoverPct.toFixed(0)+'% gain needed just to break even.'; }
+
+  // Reference table
+  const rows = [[10,11.1],[15,17.6],[20,25],[25,33.3],[30,42.9],[40,66.7],[50,100],[60,150],[75,300]];
+  const tableEl = document.getElementById('dd-table');
+  tableEl.innerHTML = `
+    <div class="dd-cell header">Drawdown</div>
+    <div class="dd-cell header">Recovery needed</div>
+    <div class="dd-cell header">Net effect</div>
+    ${rows.map(([d,r])=>`
+      <div class="dd-cell${Math.round(dd)===d?' active':''}">${d}%</div>
+      <div class="dd-cell${Math.round(dd)===d?' active':''}">${r}%</div>
+      <div class="dd-cell${Math.round(dd)===d?' active':''}">−${d}% → +${r}%</div>
+    `).join('')}
+  `;
+}
+document.addEventListener('DOMContentLoaded', calc);
+</script>
