@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Monte Carlo Trade Simulator" description="Simulate 1000 equity curves using your win rate and R:R ratio. See the full range of outcomes — best case, worst case, and everything in between.">
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-kicker">Tools → Monte Carlo Simulator</div>
+      <h1>Monte Carlo<br /><em>Trade Simulator</em></h1>
+      <p style="color:var(--text-2);font-size:0.95rem;margin-top:0.5rem;">Run 500 simulated equity curves. See exactly how wide the range of outcomes really is.</p>
+    </div>
+  </div>
+  <div class="container" style="padding-bottom:5rem;">
+    <div class="rr-grid">
+      <div class="rr-panel">
+        <div class="rr-panel-title">Simulation parameters</div>
+        <div class="rr-field">
+          <label>Win rate (%)</label>
+          <input type="range" id="wr-s" min="1" max="99" value="50" step="1" oninput="syncS('wr');"/>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">1%</span>
+            <input type="number" id="wr-n" value="50" min="1" max="99" step="1" oninput="syncN('wr');" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">99%</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>R:R ratio (avg win / avg loss)</label>
+          <input type="range" id="rr-s" min="0.2" max="5" value="2" step="0.1" oninput="syncS('rr');"/>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">0.2R</span>
+            <input type="number" id="rr-n" value="2" min="0.1" max="10" step="0.1" oninput="syncN('rr');" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">5R</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>Number of trades</label>
+          <input type="number" id="n-trades" value="100" step="10" min="20" max="500" oninput="" />
+        </div>
+        <div class="rr-field">
+          <label>Starting account ($)</label>
+          <input type="number" id="start-acc" value="10000" step="100" />
+        </div>
+        <div class="rr-field">
+          <label>Risk per trade (%)</label>
+          <input type="number" id="risk-p" value="1" step="0.1" min="0.1" max="5" />
+        </div>
+        <div class="rr-field">
+          <label>Simulations</label>
+          <select id="n-sims" style="width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:5px;padding:0.6rem 0.85rem;font-family:var(--mono);font-size:0.88rem;color:var(--text);outline:none;">
+            <option value="200">200 curves (fast)</option>
+            <option value="500" selected>500 curves (recommended)</option>
+            <option value="1000">1000 curves (slow)</option>
+          </select>
+        </div>
+        <button onclick="runSim()" style="width:100%;padding:0.75rem;background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:0.82rem;font-weight:500;letter-spacing:0.08em;border:none;border-radius:5px;cursor:pointer;margin-top:0.5rem;transition:opacity 0.15s;">▶ RUN SIMULATION</button>
+        <p class="rr-disclaimer">Each simulation is randomized. Run multiple times to see variance. Educational only.</p>
+      </div>
+
+      <div class="rr-panel">
+        <div class="rr-panel-title">Results</div>
+        <div id="sim-placeholder" style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--bg-3);border-radius:6px;border:1px solid var(--border);margin-bottom:1rem;">
+          <span style="font-family:var(--mono);font-size:0.72rem;color:var(--text-3);letter-spacing:0.08em;">Press Run to simulate →</span>
+        </div>
+        <canvas id="mc-canvas" width="380" height="200" style="display:none;width:100%;border-radius:6px;border:1px solid var(--border);"></canvas>
+        <div class="rr-stats" style="margin-top:1rem;" id="mc-stats">
+          <div class="rr-stat"><div class="rr-stat-label">Median outcome</div><div class="rr-stat-val" id="mc-median">—</div></div>
+          <div class="rr-stat"><div class="rr-stat-label">Best 10%</div><div class="rr-stat-val rr-stat-success" id="mc-best">—</div></div>
+          <div class="rr-stat"><div class="rr-stat-label">Worst 10%</div><div class="rr-stat-val rr-stat-danger" id="mc-worst">—</div></div>
+          <div class="rr-stat"><div class="rr-stat-label">% profitable</div><div class="rr-stat-val" id="mc-pct-prof">—</div></div>
+          <div class="rr-stat"><div class="rr-stat-label">Max drawdown (median)</div><div class="rr-stat-val rr-stat-danger" id="mc-mdd">—</div></div>
+          <div class="rr-stat"><div class="rr-stat-label">Ruin risk (&lt;50% account)</div><div class="rr-stat-val" id="mc-ruin">—</div></div>
+        </div>
+        <div class="rr-verdict verdict-warn" id="mc-verdict" style="margin-top:1rem;display:none;"></div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.rr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;max-width:860px;}
+@media(max-width:680px){.rr-grid{grid-template-columns:1fr;}}
+.rr-panel{background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1.75rem;}
+.rr-panel-title{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+.rr-field{margin-bottom:1rem;}
+.rr-field label{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.35rem;}
+.rr-field input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:5px;padding:0.6rem 0.85rem;font-family:var(--mono);font-size:0.92rem;color:var(--text);outline:none;-moz-appearance:textfield;}
+.rr-field input[type="number"]::-webkit-outer-spin-button,.rr-field input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.rr-field input[type="range"]{width:100%;accent-color:var(--accent);}
+.rr-field input:focus{border-color:var(--accent);}
+.rr-disclaimer{font-family:var(--mono);font-size:0.65rem;color:var(--text-4);margin:1rem 0 0;line-height:1.6;}
+.rr-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.rr-stat{background:var(--bg-2);padding:0.85rem 1rem;}
+.rr-stat-label{font-family:var(--mono);font-size:0.62rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
+.rr-stat-val{font-family:var(--mono);font-size:1.05rem;font-weight:500;color:var(--text);}
+.rr-stat-danger{color:#9B2335;}
+.rr-stat-success{color:#2D6A4F;}
+.rr-verdict{text-align:center;font-family:var(--mono);font-size:0.75rem;padding:0.55rem 1rem;border-radius:5px;letter-spacing:0.03em;}
+.verdict-good{background:rgba(45,106,79,0.1);color:#2D6A4F;border:1px solid rgba(45,106,79,0.25);}
+.verdict-warn{background:rgba(180,83,9,0.09);color:#92400E;border:1px solid rgba(180,83,9,0.22);}
+.verdict-bad{background:rgba(155,35,53,0.09);color:#9B2335;border:1px solid rgba(155,35,53,0.22);}
+</style>
+<script>
+function syncS(k){ document.getElementById(k+'-n').value = document.getElementById(k+'-s').value; }
+function syncN(k){ document.getElementById(k+'-s').value = document.getElementById(k+'-n').value; }
+
+function runSim(){
+  const wr      = parseFloat(document.getElementById('wr-n').value)/100;
+  const rr      = parseFloat(document.getElementById('rr-n').value);
+  const nTrades = parseInt(document.getElementById('n-trades').value)||100;
+  const start   = parseFloat(document.getElementById('start-acc').value)||10000;
+  const riskP   = parseFloat(document.getElementById('risk-p').value)/100;
+  const nSims   = parseInt(document.getElementById('n-sims').value)||500;
+
+  // Run simulations
+  const finalBals = [];
+  const allCurves = [];
+  const mdds = [];
+
+  for(let s=0;s<nSims;s++){
+    let bal = start;
+    const curve = [bal];
+    let peak = bal;
+    let mdd = 0;
+    for(let t=0;t<nTrades;t++){
+      const risk = bal * riskP;
+      if(Math.random() < wr){ bal += risk * rr; }
+      else { bal -= risk; }
+      bal = Math.max(0, bal);
+      curve.push(bal);
+      if(bal > peak) peak = bal;
+      const dd = (peak - bal)/peak;
+      if(dd > mdd) mdd = dd;
+    }
+    finalBals.push(bal);
+    allCurves.push(curve);
+    mdds.push(mdd);
+  }
+
+  finalBals.sort((a,b)=>a-b);
+  mdds.sort((a,b)=>a-b);
+
+  const median   = finalBals[Math.floor(nSims/2)];
+  const best10   = finalBals[Math.floor(nSims*0.9)];
+  const worst10  = finalBals[Math.floor(nSims*0.1)];
+  const pctProf  = finalBals.filter(b=>b>start).length/nSims*100;
+  const ruinRisk = finalBals.filter(b=>b<start*0.5).length/nSims*100;
+  const medMDD   = mdds[Math.floor(nSims/2)]*100;
+
+  const fmt = n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+  document.getElementById('mc-median').textContent  = fmt(median);
+  document.getElementById('mc-median').style.color  = median>=start?'#2D6A4F':'#9B2335';
+  document.getElementById('mc-best').textContent    = fmt(best10);
+  document.getElementById('mc-worst').textContent   = fmt(worst10);
+  document.getElementById('mc-pct-prof').textContent= pctProf.toFixed(1)+'%';
+  document.getElementById('mc-pct-prof').style.color= pctProf>60?'#2D6A4F':pctProf>40?'#92400E':'#9B2335';
+  document.getElementById('mc-mdd').textContent     = medMDD.toFixed(1)+'%';
+  document.getElementById('mc-ruin').textContent    = ruinRisk.toFixed(1)+'%';
+  document.getElementById('mc-ruin').style.color    = ruinRisk<5?'#2D6A4F':ruinRisk<20?'#92400E':'#9B2335';
+
+  const v = document.getElementById('mc-verdict');
+  v.style.display = 'block';
+  if(pctProf>70 && ruinRisk<5){ v.className='rr-verdict verdict-good'; v.textContent = pctProf.toFixed(0)+'% of simulations were profitable. Ruin risk is low.'; }
+  else if(pctProf>50){ v.className='rr-verdict verdict-warn'; v.textContent = 'Positive edge but high variance. Position sizing is critical.'; }
+  else { v.className='rr-verdict verdict-bad'; v.textContent = 'More than half the simulations lost money. Review your system stats.'; }
+
+  // Draw canvas
+  const canvas  = document.getElementById('mc-canvas');
+  const ph      = document.getElementById('sim-placeholder');
+  ph.style.display = 'none';
+  canvas.style.display = 'block';
+
+  const ctx     = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const allVals = allCurves.flat();
+  const maxV = Math.max(...allVals);
+  const minV = Math.min(...allVals);
+  const pad  = 10;
+
+  const toX = i => pad + (i/nTrades)*(W-2*pad);
+  const toY = v => H-pad - ((v-minV)/(maxV-minV||1))*(H-2*pad);
+
+  // Draw baseline
+  ctx.strokeStyle = 'rgba(128,128,128,0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad,toY(start)); ctx.lineTo(W-pad,toY(start)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw curves
+  const step = Math.max(1, Math.floor(nSims/150));
+  for(let s=0;s<nSims;s+=step){
+    const curve = allCurves[s];
+    const final = curve[curve.length-1];
+    const alpha = 0.15;
+    ctx.strokeStyle = final>=start?`rgba(45,106,79,${alpha})`:`rgba(155,35,53,${alpha})`;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    curve.forEach((v,i)=>{ i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)); });
+    ctx.stroke();
+  }
+
+  // Draw median
+  const medIdx = Math.floor(nSims/2);
+  const medCurve = allCurves.sort((a,b)=>a[a.length-1]-b[b.length-1])[medIdx];
+  ctx.strokeStyle = '#B8860B';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  medCurve.forEach((v,i)=>{ i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)); });
+  ctx.stroke();
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{});
+</script>
