@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Trade Expectancy Calculator" description="Calculate your trading system's expectancy. Enter win rate, average win and loss to see expected value per trade and projected account growth.">
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-kicker">Tools → Trade Expectancy</div>
+      <h1>Trade Expectancy<br /><em>Calculator</em></h1>
+      <p style="color:var(--text-2);font-size:0.95rem;margin-top:0.5rem;">Does your system have a positive edge? The numbers tell the truth.</p>
+    </div>
+  </div>
+  <div class="container" style="padding-bottom:5rem;">
+    <div class="rr-grid">
+      <div class="rr-panel">
+        <div class="rr-panel-title">System statistics</div>
+        <div class="rr-field">
+          <label>Win rate (%)</label>
+          <input type="range" id="wr-slider" min="1" max="99" value="45" step="1" oninput="syncWR();calc()" style="width:100%;accent-color:var(--accent);" />
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">1%</span>
+            <input type="number" id="wr-num" value="45" min="1" max="99" step="1" oninput="syncWRNum();calc()" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">99%</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>Average winning trade ($)</label>
+          <input type="number" id="avg-win" value="300" step="10" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Average losing trade ($)</label>
+          <input type="number" id="avg-loss" value="150" step="10" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Account size ($)</label>
+          <input type="number" id="account" value="10000" step="100" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Number of trades per month</label>
+          <input type="number" id="trades-mo" value="20" step="1" oninput="calc()" />
+        </div>
+        <p class="rr-disclaimer">Educational only — not financial advice.</p>
+      </div>
+      <div class="rr-panel">
+        <div class="rr-panel-title">Results</div>
+        <div class="rr-hero">
+          <div class="rr-hero-num" id="exp-display">+$67.50</div>
+          <div class="rr-hero-label">Expected value per trade</div>
+        </div>
+        <div class="rr-verdict verdict-good" id="exp-verdict" style="margin-bottom:1.25rem;">Positive edge — this system makes money over time</div>
+        <div class="rr-stats" style="margin-bottom:1.25rem;">
+          <div class="rr-stat">
+            <div class="rr-stat-label">R:R ratio</div>
+            <div class="rr-stat-val" id="rr-implied">2.00R</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Expectancy (R)</div>
+            <div class="rr-stat-val" id="exp-r">+0.35R</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Monthly profit (est.)</div>
+            <div class="rr-stat-val rr-stat-success" id="monthly-profit">+$1,350</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Monthly return (%)</div>
+            <div class="rr-stat-val" id="monthly-pct">+13.5%</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Annual profit (est.)</div>
+            <div class="rr-stat-val rr-stat-success" id="annual-profit">+$16,200</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Profit factor</div>
+            <div class="rr-stat-val" id="profit-factor">1.98</div>
+          </div>
+        </div>
+
+        <div class="rr-panel-title" style="margin-bottom:0.75rem;">Monthly projection (12 months)</div>
+        <div id="growth-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;padding:0 2px;"></div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text-3);margin-top:4px;text-align:center;">Month 1 → Month 12 (compound growth)</div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.rr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;max-width:860px;}
+@media(max-width:680px){.rr-grid{grid-template-columns:1fr;}}
+.rr-panel{background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1.75rem;}
+.rr-panel-title{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+.rr-field{margin-bottom:1rem;}
+.rr-field label{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.35rem;}
+.rr-field input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:5px;padding:0.6rem 0.85rem;font-family:var(--mono);font-size:0.92rem;color:var(--text);outline:none;-moz-appearance:textfield;}
+.rr-field input[type="number"]::-webkit-outer-spin-button,.rr-field input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.rr-field input:focus{border-color:var(--accent);}
+.rr-disclaimer{font-family:var(--mono);font-size:0.65rem;color:var(--text-4);margin:1rem 0 0;line-height:1.6;}
+.rr-hero{text-align:center;padding:1.25rem 0 1rem;}
+.rr-hero-num{font-family:var(--serif);font-size:3rem;font-weight:400;line-height:1;letter-spacing:-0.02em;transition:color 0.2s;}
+.rr-hero-label{font-family:var(--mono);font-size:0.65rem;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.4rem;}
+.rr-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.rr-stat{background:var(--bg-2);padding:0.85rem 1rem;}
+.rr-stat-label{font-family:var(--mono);font-size:0.62rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
+.rr-stat-val{font-family:var(--mono);font-size:1.05rem;font-weight:500;color:var(--text);}
+.rr-stat-danger{color:#9B2335;}
+.rr-stat-success{color:#2D6A4F;}
+.rr-verdict{text-align:center;font-family:var(--mono);font-size:0.75rem;padding:0.55rem 1rem;border-radius:5px;letter-spacing:0.03em;transition:all 0.2s;}
+.verdict-good{background:rgba(45,106,79,0.1);color:#2D6A4F;border:1px solid rgba(45,106,79,0.25);}
+.verdict-warn{background:rgba(180,83,9,0.09);color:#92400E;border:1px solid rgba(180,83,9,0.22);}
+.verdict-bad{background:rgba(155,35,53,0.09);color:#9B2335;border:1px solid rgba(155,35,53,0.22);}
+</style>
+<script>
+function syncWR(){document.getElementById('wr-num').value=document.getElementById('wr-slider').value;}
+function syncWRNum(){document.getElementById('wr-slider').value=document.getElementById('wr-num').value;}
+
+function fmt(n){return(n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function calc(){
+  const wr      = parseFloat(document.getElementById('wr-num').value)||45;
+  const avgW    = parseFloat(document.getElementById('avg-win').value)||300;
+  const avgL    = parseFloat(document.getElementById('avg-loss').value)||150;
+  const account = parseFloat(document.getElementById('account').value)||10000;
+  const tradesMo= parseFloat(document.getElementById('trades-mo').value)||20;
+
+  const wrDec   = wr/100;
+  const exp     = wrDec*avgW - (1-wrDec)*avgL;
+  const rr      = avgW/avgL;
+  const expR    = wrDec*rr - (1-wrDec);
+  const pf      = (wrDec*avgW) / ((1-wrDec)*avgL);
+  const monthly = exp*tradesMo;
+  const monthlyPct = monthly/account*100;
+
+  document.getElementById('exp-display').textContent = fmt(exp);
+  document.getElementById('exp-display').style.color = exp>0?'#2D6A4F':exp<0?'#9B2335':'var(--text)';
+  document.getElementById('rr-implied').textContent = rr.toFixed(2)+'R';
+  document.getElementById('exp-r').textContent = (expR>=0?'+':'')+expR.toFixed(3)+'R';
+  document.getElementById('exp-r').style.color = expR>0?'#2D6A4F':expR<0?'#9B2335':'var(--text)';
+  document.getElementById('monthly-profit').textContent = fmt(monthly);
+  document.getElementById('monthly-profit').style.color = monthly>0?'#2D6A4F':'#9B2335';
+  document.getElementById('monthly-pct').textContent = (monthlyPct>=0?'+':'')+monthlyPct.toFixed(1)+'%';
+  document.getElementById('monthly-pct').style.color = monthlyPct>0?'#2D6A4F':'#9B2335';
+  document.getElementById('profit-factor').textContent = pf.toFixed(2);
+  document.getElementById('profit-factor').style.color = pf>1.5?'#2D6A4F':pf>1?'#92400E':'#9B2335';
+
+  // Annual (compound monthly)
+  let bal = account;
+  const months = [];
+  for(let i=0;i<12;i++){ bal += monthly; months.push(bal); }
+  const annual = bal - account;
+  document.getElementById('annual-profit').textContent = fmt(annual);
+  document.getElementById('annual-profit').style.color = annual>0?'#2D6A4F':'#9B2335';
+
+  const v = document.getElementById('exp-verdict');
+  if(exp>0 && pf>1.5){ v.className='rr-verdict verdict-good'; v.textContent='Strong edge — profit factor '+pf.toFixed(2)+', positive expectancy.'; }
+  else if(exp>0){ v.className='rr-verdict verdict-warn'; v.textContent='Marginal edge — profitable but thin. Commissions matter.'; }
+  else{ v.className='rr-verdict verdict-bad'; v.textContent='Negative expectancy — losing system. Adjust win rate or R:R.'; }
+
+  // Bar chart
+  const maxBal = Math.max(...months);
+  const minBal = Math.min(account, ...months);
+  const range  = maxBal - minBal || 1;
+  const chart  = document.getElementById('growth-chart');
+  chart.innerHTML = months.map((b,i)=>{
+    const h = Math.max(4, ((b-minBal)/range)*76);
+    const color = b>=account?'#2D6A4F':'#9B2335';
+    return `<div style="flex:1;background:${color};height:${h}px;border-radius:2px 2px 0 0;opacity:0.75;min-width:6px;" title="Month ${i+1}: $${b.toFixed(0)}"></div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded', calc);
+</script>
