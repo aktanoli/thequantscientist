@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Tools" description="Free trading tools — Risk/Reward calculator, position sizing, and more. Built for serious traders.">
+
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-kicker">Tools</div>
+      <h1>Trading tools,<br /><em>built for quants.</em></h1>
+      <p style="color:var(--text-2);font-size:1rem;margin-top:0.75rem;max-width:500px;">
+        Free, no login required. Built on the same logic we backtest with.
+      </p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:5rem;">
+
+    <!-- Tool card grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-bottom:3rem;">
+
+      <!-- RR Calculator — active -->
+      <a href="/tools/risk-reward/" class="post-card" style="text-decoration:none;">
+        <div class="post-card-top">
+          <span class="concept-badge" style="border-color:var(--accent);color:var(--accent);">Calculator</span>
+          <span class="post-date">Free</span>
+        </div>
+        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">Risk / Reward Calculator</h2>
+        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
+          Entry, stop loss, target — see your R:R ratio, position size, dollar risk, and
+          break-even win rate instantly.
+        </p>
+        <div class="post-tags" style="margin-top:1rem;">
+          <span class="tag">position sizing</span>
+          <span class="tag">risk management</span>
+        </div>
+      </a>
+
+      <!-- Coming soon -->
+      <div class="post-card coming-soon-card">
+        <div class="post-card-top">
+          <span class="concept-badge" style="opacity:0.4;">Calculator</span>
+          <span class="coming-soon-label">Coming soon</span>
+        </div>
+        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">Backtest Stats Analyzer</h2>
+        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
+          Paste your trade log — get Sharpe ratio, max drawdown, expectancy, and win rate breakdown automatically.
+        </p>
+      </div>
+
+      <div class="post-card coming-soon-card">
+        <div class="post-card-top">
+          <span class="concept-badge" style="opacity:0.4;">Calculator</span>
+          <span class="coming-soon-label">Coming soon</span>
+        </div>
+        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">ATR Position Sizer</h2>
+        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
+          Size positions based on ATR — the volatility-adjusted way Brooks would actually think about risk.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</BaseLayout>
