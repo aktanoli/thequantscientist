@@ -1,3 +1,2 @@
-// Global site data
 export const SITE_TITLE = 'The Quant Scientist';
-export const SITE_DESCRIPTION = 'Al Brooks price action concepts — implemented and backtested in Python. One concept at a time.';
+export const SITE_DESCRIPTION = 'We test what traders believe. Al Brooks price action and popular trading strategies — coded in Python, backtested on real data, results shared honestly.';
