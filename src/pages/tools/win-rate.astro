@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Win Rate Required Calculator" description="What win rate do you need to be profitable? Enter your R:R ratio and find the minimum win rate your strategy needs to have a positive expectancy.">
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-kicker">Tools → Win Rate Required</div>
+      <h1>Win Rate<br /><em>Required</em></h1>
+      <p style="color:var(--text-2);font-size:0.95rem;margin-top:0.5rem;">What win rate does your setup actually need to be profitable?</p>
+    </div>
+  </div>
+  <div class="container" style="padding-bottom:5rem;">
+    <div class="rr-grid">
+      <div class="rr-panel">
+        <div class="rr-panel-title">Your setup</div>
+        <div class="rr-field">
+          <label>Average R:R ratio</label>
+          <input type="range" id="rr-slider" min="0.2" max="5" value="2" step="0.1" oninput="syncRR(); calc()" style="width:100%;accent-color:var(--accent);" />
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">0.2R</span>
+            <input type="number" id="rr-num" value="2" min="0.1" max="10" step="0.1" oninput="syncRRNum(); calc()" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">5R</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>Your actual win rate (%)</label>
+          <input type="range" id="wr-slider" min="1" max="99" value="50" step="1" oninput="syncWR(); calc()" style="width:100%;accent-color:var(--accent);" />
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">1%</span>
+            <input type="number" id="wr-num" value="50" min="1" max="99" step="1" oninput="syncWRNum(); calc()" style="width:64px;text-align:center;font-family:var(--mono);font-size:0.88rem;background:var(--bg);border:1px solid var(--border-md);border-radius:4px;padding:3px 6px;color:var(--text);" />
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-3);">99%</span>
+          </div>
+        </div>
+        <div class="rr-field">
+          <label>Number of trades (for simulation)</label>
+          <input type="number" id="num-trades" value="100" step="10" min="10" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Account size ($)</label>
+          <input type="number" id="account" value="10000" step="100" oninput="calc()" />
+        </div>
+        <div class="rr-field">
+          <label>Risk per trade (%)</label>
+          <input type="number" id="risk-pct" value="1" step="0.1" min="0.1" oninput="calc()" />
+        </div>
+        <p class="rr-disclaimer">Educational only — not financial advice.</p>
+      </div>
+      <div class="rr-panel">
+        <div class="rr-panel-title">Results</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div style="text-align:center;padding:1rem 0.5rem;background:var(--bg-3);border-radius:6px;border:1px solid var(--border);">
+            <div style="font-family:var(--serif);font-size:2.4rem;font-weight:400;line-height:1;color:#9B2335;" id="min-wr">33.3%</div>
+            <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;">Min win rate needed</div>
+          </div>
+          <div style="text-align:center;padding:1rem 0.5rem;background:var(--bg-3);border-radius:6px;border:1px solid var(--border);">
+            <div style="font-family:var(--serif);font-size:2.4rem;font-weight:400;line-height:1;" id="expectancy-r">+0.500R</div>
+            <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;">Expectancy per trade</div>
+          </div>
+        </div>
+        <div class="rr-verdict verdict-good" id="wr-verdict" style="margin-bottom:1rem;">Profitable edge — your win rate exceeds the minimum</div>
+        <div class="rr-stats" style="margin-bottom:1.25rem;">
+          <div class="rr-stat">
+            <div class="rr-stat-label">Expected profit (N trades)</div>
+            <div class="rr-stat-val rr-stat-success" id="exp-profit">+$500</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Avg win</div>
+            <div class="rr-stat-val" id="avg-win">$200</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Avg loss</div>
+            <div class="rr-stat-val rr-stat-danger" id="avg-loss">$100</div>
+          </div>
+          <div class="rr-stat">
+            <div class="rr-stat-label">Margin above breakeven</div>
+            <div class="rr-stat-val" id="margin">+16.7%</div>
+          </div>
+        </div>
+
+        <!-- RR reference table -->
+        <div class="rr-panel-title" style="margin-bottom:0.75rem;">Breakeven win rate by R:R</div>
+        <div id="wr-table" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-family:var(--mono);font-size:0.72rem;"></div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.rr-grid { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;max-width:860px; }
+@media(max-width:680px){ .rr-grid{grid-template-columns:1fr;} }
+.rr-panel { background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1.75rem; }
+.rr-panel-title { font-family:var(--mono);font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border); }
+.rr-field { margin-bottom:1rem; }
+.rr-field label { display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.35rem; }
+.rr-field input[type="number"] { width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:5px;padding:0.6rem 0.85rem;font-family:var(--mono);font-size:0.92rem;color:var(--text);outline:none;-moz-appearance:textfield; }
+.rr-field input[type="number"]::-webkit-outer-spin-button,.rr-field input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.rr-field input:focus { border-color:var(--accent); }
+.rr-disclaimer { font-family:var(--mono);font-size:0.65rem;color:var(--text-4);margin:1rem 0 0;line-height:1.6; }
+.rr-stats { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden; }
+.rr-stat { background:var(--bg-2);padding:0.85rem 1rem; }
+.rr-stat-label { font-family:var(--mono);font-size:0.62rem;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem; }
+.rr-stat-val { font-family:var(--mono);font-size:1.05rem;font-weight:500;color:var(--text); }
+.rr-stat-danger { color:#9B2335; }
+.rr-stat-success { color:#2D6A4F; }
+.rr-verdict { text-align:center;font-family:var(--mono);font-size:0.75rem;padding:0.55rem 1rem;border-radius:5px;letter-spacing:0.03em;transition:all 0.2s; }
+.verdict-good { background:rgba(45,106,79,0.1);color:#2D6A4F;border:1px solid rgba(45,106,79,0.25); }
+.verdict-warn { background:rgba(180,83,9,0.09);color:#92400E;border:1px solid rgba(180,83,9,0.22); }
+.verdict-bad  { background:rgba(155,35,53,0.09);color:#9B2335;border:1px solid rgba(155,35,53,0.22); }
+.dd-cell { padding:6px 8px;background:var(--bg-2);color:var(--text-2); }
+.dd-cell.header { background:var(--bg-3);color:var(--text-3);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase; }
+.dd-cell.active { background:rgba(45,106,79,0.1);color:#2D6A4F;font-weight:500; }
+</style>
+<script>
+function syncRR(){ document.getElementById('rr-num').value = document.getElementById('rr-slider').value; }
+function syncRRNum(){ document.getElementById('rr-slider').value = document.getElementById('rr-num').value; }
+function syncWR(){ document.getElementById('wr-num').value = document.getElementById('wr-slider').value; }
+function syncWRNum(){ document.getElementById('wr-slider').value = document.getElementById('wr-num').value; }
+
+function calc(){
+  const rr       = parseFloat(document.getElementById('rr-num').value)||2;
+  const wr       = parseFloat(document.getElementById('wr-num').value)||50;
+  const nTrades  = parseFloat(document.getElementById('num-trades').value)||100;
+  const account  = parseFloat(document.getElementById('account').value)||10000;
+  const riskPct  = parseFloat(document.getElementById('risk-pct').value)||1;
+
+  const minWR    = 1/(1+rr)*100;
+  const wrDec    = wr/100;
+  const expectR  = wrDec*rr - (1-wrDec)*1;
+  const riskDollar = account*(riskPct/100);
+  const avgWin   = riskDollar*rr;
+  const avgLoss  = riskDollar;
+  const expProfit= expectR * riskDollar * nTrades;
+  const margin   = wr - minWR;
+
+  document.getElementById('min-wr').textContent = minWR.toFixed(1)+'%';
+  document.getElementById('expectancy-r').textContent = (expectR>=0?'+':'')+expectR.toFixed(3)+'R';
+  document.getElementById('expectancy-r').style.color = expectR>0?'#2D6A4F':expectR<0?'#9B2335':'var(--text)';
+  document.getElementById('exp-profit').textContent = (expProfit>=0?'+':'')+expProfit.toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0});
+  document.getElementById('exp-profit').style.color = expProfit>0?'#2D6A4F':'#9B2335';
+  document.getElementById('avg-win').textContent = '$'+avgWin.toFixed(2);
+  document.getElementById('avg-loss').textContent = '$'+avgLoss.toFixed(2);
+  document.getElementById('margin').textContent = (margin>=0?'+':'')+margin.toFixed(1)+'%';
+  document.getElementById('margin').style.color = margin>5?'#2D6A4F':margin>0?'#92400E':'#9B2335';
+
+  const v = document.getElementById('wr-verdict');
+  if(expectR>0.3){ v.className='rr-verdict verdict-good'; v.textContent='Strong edge — expectancy is solid at '+expectR.toFixed(2)+'R per trade.'; }
+  else if(expectR>0){ v.className='rr-verdict verdict-warn'; v.textContent='Marginal edge — profitable but thin. Slippage can erase it.'; }
+  else{ v.className='rr-verdict verdict-bad'; v.textContent='Negative expectancy — losing strategy at current win rate.'; }
+
+  const refRRs = [[0.5,66.7],[1,50],[1.5,40],[2,33.3],[2.5,28.6],[3,25],[4,20],[5,16.7]];
+  const tableEl = document.getElementById('wr-table');
+  const currRR = Math.round(rr*10)/10;
+  tableEl.innerHTML = `
+    <div class="dd-cell header">R:R ratio</div>
+    <div class="dd-cell header">Min win rate</div>
+    <div class="dd-cell header">Your edge</div>
+    ${refRRs.map(([r,mw])=>{
+      const close = Math.abs(r-rr)<0.3;
+      const edge = wr-mw;
+      return `
+        <div class="dd-cell${close?' active':''}">${r}R</div>
+        <div class="dd-cell${close?' active':''}">${mw}%</div>
+        <div class="dd-cell${close?' active':''}" style="color:${edge>0?'#2D6A4F':edge<0?'#9B2335':'var(--text-2)'}">${edge>=0?'+':''}${edge.toFixed(1)}%</div>
+      `;
+    }).join('')}
+  `;
+}
+document.addEventListener('DOMContentLoaded', calc);
+</script>
