@@ -1,65 +1,45 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const tools = [
+  { href:'/tools/risk-reward/',      label:'Live',  badge:'Calculator', name:'Risk / Reward Calculator',         desc:'Entry, stop, target → R:R ratio, position size, dollar risk, break-even win rate. Supports ES, NQ, stocks.' },
+  { href:'/tools/drawdown-recovery/',label:'Live',  badge:'Calculator', name:'Drawdown Recovery Calculator',     desc:'How much do you need to gain after a drawdown? The math is asymmetric — and more brutal than most traders realise.' },
+  { href:'/tools/win-rate/',         label:'Live',  badge:'Calculator', name:'Win Rate Required',                desc:'Enter your R:R ratio — get the minimum win rate your strategy needs to have a positive expectancy.' },
+  { href:'/tools/expectancy/',       label:'Live',  badge:'Calculator', name:'Trade Expectancy Calculator',      desc:'Win rate + avg win + avg loss → expected value per trade, monthly projection, and profit factor.' },
+  { href:'/tools/monte-carlo/',      label:'Live',  badge:'Simulator',  name:'Monte Carlo Trade Simulator',      desc:'Run 500 randomised equity curves using your system stats. See the full range of outcomes — best, worst, and median.' },
+  { href:'',                         label:'Soon',  badge:'Calculator', name:'ATR Position Sizer',               desc:'Size positions based on ATR — volatility-adjusted position sizing the way quant traders actually think about risk.' },
+  { href:'',                         label:'Soon',  badge:'Analyzer',   name:'Backtest Stats Analyzer',          desc:'Paste your trade log — get Sharpe ratio, max drawdown, expectancy, and win rate breakdown automatically.' },
+];
 ---
-
-<BaseLayout title="Tools" description="Free trading tools — Risk/Reward calculator, position sizing, and more. Built for serious traders.">
-
+<BaseLayout title="Tools" description="Free trading tools — Risk/Reward calculator, Monte Carlo simulator, drawdown recovery, expectancy, and more. Built for serious traders.">
   <div class="page-header">
     <div class="container">
       <div class="hero-kicker">Tools</div>
       <h1>Trading tools,<br /><em>built for quants.</em></h1>
-      <p style="color:var(--text-2);font-size:1rem;margin-top:0.75rem;max-width:500px;">
-        Free, no login required. Built on the same logic we backtest with.
-      </p>
+      <p style="color:var(--text-2);font-size:1rem;margin-top:0.75rem;max-width:500px;">Free. No login. No signup. Built on the same math we backtest with.</p>
     </div>
   </div>
-
   <div class="container" style="padding-bottom:5rem;">
-
-    <!-- Tool card grid -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-bottom:3rem;">
-
-      <!-- RR Calculator — active -->
-      <a href="/tools/risk-reward/" class="post-card" style="text-decoration:none;">
-        <div class="post-card-top">
-          <span class="concept-badge" style="border-color:var(--accent);color:var(--accent);">Calculator</span>
-          <span class="post-date">Free</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+      {tools.map(t => t.href ? (
+        <a href={t.href} class="post-card" style="text-decoration:none;">
+          <div class="post-card-top">
+            <span class="concept-badge" style={t.label==='Live'?'':'opacity:0.4;'}>{t.badge}</span>
+            <span class="post-date" style={t.label==='Live'?'color:var(--accent);':''}>{t.label}</span>
+          </div>
+          <h2 style="font-size:1.1rem;margin:0 0 0.5rem;">{t.name}</h2>
+          <p style="font-size:0.86rem;color:var(--text-3);margin:0;line-height:1.6;">{t.desc}</p>
+        </a>
+      ) : (
+        <div class="post-card coming-soon-card">
+          <div class="post-card-top">
+            <span class="concept-badge" style="opacity:0.4;">{t.badge}</span>
+            <span class="coming-soon-label">{t.label}</span>
+          </div>
+          <h2 style="font-size:1.1rem;margin:0 0 0.5rem;">{t.name}</h2>
+          <p style="font-size:0.86rem;color:var(--text-3);margin:0;line-height:1.6;">{t.desc}</p>
         </div>
-        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">Risk / Reward Calculator</h2>
-        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
-          Entry, stop loss, target — see your R:R ratio, position size, dollar risk, and
-          break-even win rate instantly.
-        </p>
-        <div class="post-tags" style="margin-top:1rem;">
-          <span class="tag">position sizing</span>
-          <span class="tag">risk management</span>
-        </div>
-      </a>
-
-      <!-- Coming soon -->
-      <div class="post-card coming-soon-card">
-        <div class="post-card-top">
-          <span class="concept-badge" style="opacity:0.4;">Calculator</span>
-          <span class="coming-soon-label">Coming soon</span>
-        </div>
-        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">Backtest Stats Analyzer</h2>
-        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
-          Paste your trade log — get Sharpe ratio, max drawdown, expectancy, and win rate breakdown automatically.
-        </p>
-      </div>
-
-      <div class="post-card coming-soon-card">
-        <div class="post-card-top">
-          <span class="concept-badge" style="opacity:0.4;">Calculator</span>
-          <span class="coming-soon-label">Coming soon</span>
-        </div>
-        <h2 style="font-size:1.2rem;margin:0 0 0.5rem;">ATR Position Sizer</h2>
-        <p style="font-size:0.88rem;color:var(--text-3);margin:0;">
-          Size positions based on ATR — the volatility-adjusted way Brooks would actually think about risk.
-        </p>
-      </div>
-
+      ))}
     </div>
   </div>
-
 </BaseLayout>
