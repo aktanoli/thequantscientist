@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="The Quant Scientist" href="https://thequantscientist.vercel.app/rss.xml"><meta name="generator" content="Astro v6.4.2"><link rel="canonical" href="https://thequantscientist.vercel.app/blog/rsi-strategy-backtest-autopsy/"><!-- Primary Meta Tags --><title>I Backtested the 3 Most Popular RSI Strategies. Here&#39;s the Autopsy. — The Quant Scientist</title><meta name="title" content="I Backtested the 3 Most Popular RSI Strategies. Here's the Autopsy. — The Quant Scientist"><meta name="description" content="RSI 70/30, RSI divergence, and RSI + 200MA — three strategies taught on thousands of blogs and YouTube channels. I ran all three on 15 years of SPY data. Two lost money. One barely broke even. Here's exactly what the numbers showed."><!-- Open Graph (WhatsApp, Facebook, LinkedIn) --><meta property="og:type" content="website"><meta property="og:url" content="https://thequantscientist.vercel.app/blog/rsi-strategy-backtest-autopsy/"><meta property="og:title" content="I Backtested the 3 Most Popular RSI Strategies. Here's the Autopsy. — The Quant Scientist"><meta property="og:description" content="RSI 70/30, RSI divergence, and RSI + 200MA — three strategies taught on thousands of blogs and YouTube channels. I ran all three on 15 years of SPY data. Two lost money. One barely broke even. Here's exactly what the numbers showed."><meta property="og:image" content="https://thequantscientist.vercel.app/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="The Quant Scientist"><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://thequantscientist.vercel.app/blog/rsi-strategy-backtest-autopsy/"><meta name="twitter:title" content="I Backtested the 3 Most Popular RSI Strategies. Here's the Autopsy. — The Quant Scientist"><meta name="twitter:description" content="RSI 70/30, RSI divergence, and RSI + 200MA — three strategies taught on thousands of blogs and YouTube channels. I ran all three on 15 years of SPY data. Two lost money. One barely broke even. Here's exactly what the numbers showed."><meta name="twitter:image" content="https://thequantscientist.vercel.app/og-image.png"><link rel="stylesheet" href="/_astro/BaseLayout.BCinTqp8.css"><style>.rsi-chart-wrap[data-astro-cid-yy5cjvir]{background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:2rem 0}.chart-header[data-astro-cid-yy5cjvir]{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:8px}.chart-title[data-astro-cid-yy5cjvir]{font-family:var(--mono);font-size:.72rem;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase}.chart-legend[data-astro-cid-yy5cjvir]{display:flex;gap:1rem;flex-wrap:wrap}.legend-item[data-astro-cid-yy5cjvir]{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.7rem;color:var(--text-3)}.dot[data-astro-cid-yy5cjvir]{width:8px;height:8px;border-radius:50%;flex-shrink:0}.chart-stats[data-astro-cid-yy5cjvir]{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:1rem}@media(max-width:600px){.chart-stats[data-astro-cid-yy5cjvir]{grid-template-columns:repeat(2,1fr)}.chart-header[data-astro-cid-yy5cjvir]{flex-direction:column}}.cstat[data-astro-cid-yy5cjvir]{background:var(--bg-2);padding:.75rem 1rem;text-align:center}.cstat-label[data-astro-cid-yy5cjvir]{font-family:var(--mono);font-size:.65rem;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}.cstat-val[data-astro-cid-yy5cjvir]{font-family:var(--mono);font-size:1.1rem;font-weight:500}
+</style></head> <body> <div class="ticker" aria-hidden="true"> <div class="ticker-track">  <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span> <span class="ticker-sep"></span>  </div> </div> <nav class="site-nav" id="site-nav"> <div class="nav-wrap"> <a href="/" class="nav-logo" aria-label="The Quant Scientist"> <div class="nav-logo-mark">TQS</div> <span>The Quant Scientist</span> </a> <ul class="nav-center" role="list"> <li><a href="/" class>Home</a></li> <li><a href="/blog" class="active">Posts</a></li> <li><a href="/tools" class>Tools</a></li> <li><a href="/about" class>About</a></li> </ul> <div class="nav-right"> <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button> <a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener" class="nav-github">GitHub ↗</a> </div> </div> </nav> <script type="module">const t=document.documentElement,r=document.getElementById("theme-toggle"),a=localStorage.getItem("theme"),d=window.matchMedia("(prefers-color-scheme: dark)").matches;(a==="dark"||!a&&d)&&t.setAttribute("data-theme","dark");r?.addEventListener("click",()=>{const e=t.getAttribute("data-theme")==="dark";t.setAttribute("data-theme",e?"light":"dark"),localStorage.setItem("theme",e?"light":"dark")});</script> <main id="main-content"> <div id="read-progress" aria-hidden="true"></div> <article> <div class="article-hero"> <div class="container"> <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.25rem;">  <span class="tag">rsi</span><span class="tag">backtest</span><span class="tag">autopsy</span><span class="tag">python</span><span class="tag">spy</span><span class="tag">mean-reversion</span> </div> <h1>I Backtested the 3 Most Popular RSI Strategies. Here&#39;s the Autopsy.</h1> <div class="article-meta"> <span class="meta-item">Published <span>June 1, 2026</span></span> <span class="meta-item">Series <span>Al Brooks × Python</span></span> <span class="meta-item">Read <span>6 min</span></span>  </div> </div> </div> <div class="container"> <div class="prose article-body">  <p>There is a specific type of YouTube video that gets millions of views.</p>
+<p>The thumbnail shows a chart with a few arrows pointing at RSI signals. Big green candles follow every buy signal. Big red candles follow every sell. The title says something like “RSI Strategy: 91% Win Rate — Full Tutorial.”</p>
+<p>The comment section is full of people saying they made money last week. Nobody comes back three months later to update their comment.</p>
+<p>I wanted to know what happens when you actually test these things. Not on cherry-picked charts. Not with hindsight. On 15 years of real data, same rules, every signal, no exceptions.</p>
+<p>Here’s the autopsy.</p>
+<hr/>
+<h2 id="the-three-strategies">The three strategies</h2>
+<p>These are the most commonly taught RSI strategies online. I picked them because they show up everywhere — beginner courses, trading blogs, YouTube tutorials with millions of views.</p>
+<p><strong>Strategy 1 — RSI Classic (70/30)</strong>
+Buy when RSI crosses above 30 from below. Sell when RSI crosses below 70 from above. RSI period: 14. This is literally the first thing most people learn about RSI.</p>
+<p><strong>Strategy 2 — RSI Divergence</strong>
+Buy when price makes a lower low but RSI makes a higher low (bullish divergence). Sell when price makes a higher high but RSI makes a lower high (bearish divergence). RSI period: 14. Taught as a “more sophisticated” version.</p>
+<p><strong>Strategy 3 — RSI + 200 MA</strong>
+Same as Strategy 1, but only take signals when price is above the 200-day moving average for longs, below for shorts. Supposed to “filter out bad signals” by adding trend context.</p>
+<p><strong>Test setup:</strong></p>
+<ul>
+<li>Instrument: SPY (S&amp;P 500 ETF)</li>
+<li>Period: January 2010 to December 2024 (15 years, ~3,775 trading days)</li>
+<li>Starting capital: $10,000</li>
+<li>Position sizing: 100% of available capital per trade</li>
+<li>No commissions for the base test (then I add commissions to see what happens)</li>
+<li>No leverage</li>
+</ul>
+<hr/>
+<h2 id="the-python-code">The Python code</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> pandas </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> pd</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> numpy </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> np</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> yfinance </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> yf</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> compute_rsi</span><span style="color:#E1E4E8">(series: pd.Series, period: </span><span style="color:#79B8FF">int</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 14</span><span style="color:#E1E4E8">) -&gt; pd.Series:</span></span>
+<span class="line"><span style="color:#E1E4E8">    delta </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> series.diff()</span></span>
+<span class="line"><span style="color:#E1E4E8">    gain  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delta.clip(</span><span style="color:#FFAB70">lower</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    loss  </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8">delta.clip(</span><span style="color:#FFAB70">upper</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    avg_gain </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> gain.ewm(</span><span style="color:#FFAB70">alpha</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">period, </span><span style="color:#FFAB70">min_periods</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">period, </span><span style="color:#FFAB70">adjust</span><span style="color:#F97583">=</span><span style="color:#79B8FF">False</span><span style="color:#E1E4E8">).mean()</span></span>
+<span class="line"><span style="color:#E1E4E8">    avg_loss </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> loss.ewm(</span><span style="color:#FFAB70">alpha</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">period, </span><span style="color:#FFAB70">min_periods</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">period, </span><span style="color:#FFAB70">adjust</span><span style="color:#F97583">=</span><span style="color:#79B8FF">False</span><span style="color:#E1E4E8">).mean()</span></span>
+<span class="line"><span style="color:#E1E4E8">    rs  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> avg_gain </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> avg_loss.replace(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, np.nan)</span></span>
+<span class="line"><span style="color:#E1E4E8">    rsi </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 100</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">100</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> rs))</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> rsi</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Download data</span></span>
+<span class="line"><span style="color:#E1E4E8">spy </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> yf.download(</span><span style="color:#9ECBFF">&#39;SPY&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">start</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&#39;2010-01-01&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">end</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&#39;2025-01-01&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">auto_adjust</span><span style="color:#F97583">=</span><span style="color:#79B8FF">True</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">spy </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> spy[</span><span style="color:#9ECBFF">&#39;Close&#39;</span><span style="color:#E1E4E8">].squeeze()</span></span>
+<span class="line"><span style="color:#E1E4E8">spy </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> spy.to_frame(</span><span style="color:#FFAB70">name</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">spy[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> compute_rsi(spy[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">spy[</span><span style="color:#9ECBFF">&#39;ma200&#39;</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> spy[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].rolling(</span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">).mean()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ── STRATEGY 1: RSI Classic 70/30 ──</span></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> strategy_classic</span><span style="color:#E1E4E8">(df):</span></span>
+<span class="line"><span style="color:#E1E4E8">    signals </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.Series(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">df.index)</span></span>
+<span class="line"><span style="color:#E1E4E8">    in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> False</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">in</span><span style="color:#79B8FF"> range</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">len</span><span style="color:#E1E4E8">(df)):</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> pd.isna(df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i]): </span><span style="color:#F97583">continue</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> not</span><span style="color:#E1E4E8"> in_trade </span><span style="color:#F97583">and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&lt;=</span><span style="color:#79B8FF"> 30</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i] </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 30</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#6A737D">   # buy</span></span>
+<span class="line"><span style="color:#E1E4E8">            in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> True</span></span>
+<span class="line"><span style="color:#F97583">        elif</span><span style="color:#E1E4E8"> in_trade </span><span style="color:#F97583">and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&gt;=</span><span style="color:#79B8FF"> 70</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i] </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 70</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#6A737D">  # sell</span></span>
+<span class="line"><span style="color:#E1E4E8">            in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> False</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> signals</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ── STRATEGY 2: RSI Divergence ──</span></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> find_divergence</span><span style="color:#E1E4E8">(df, lookback</span><span style="color:#F97583">=</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">    signals </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.Series(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">df.index)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">in</span><span style="color:#79B8FF"> range</span><span style="color:#E1E4E8">(lookback, </span><span style="color:#79B8FF">len</span><span style="color:#E1E4E8">(df)):</span></span>
+<span class="line"><span style="color:#E1E4E8">        window_p   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">lookback:i</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">        window_rsi </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">lookback:i</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> pd.isna(window_rsi.iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]): </span><span style="color:#F97583">continue</span></span>
+<span class="line"><span style="color:#6A737D">        # Bullish divergence: price lower low, RSI higher low</span></span>
+<span class="line"><span style="color:#E1E4E8">        p_min_idx   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> window_p.idxmin()</span></span>
+<span class="line"><span style="color:#E1E4E8">        rsi_min_idx </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> window_rsi.idxmin()</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (window_p.iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]   </span><span style="color:#F97583">&lt;</span><span style="color:#E1E4E8"> window_p.min()   </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 1.02</span><span style="color:#F97583"> and</span></span>
+<span class="line"><span style="color:#E1E4E8">            window_rsi.iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&gt;</span><span style="color:#E1E4E8"> window_rsi.min() </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 1.05</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#6A737D">        # Bearish divergence: price higher high, RSI lower high</span></span>
+<span class="line"><span style="color:#F97583">        elif</span><span style="color:#E1E4E8"> (window_p.iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]   </span><span style="color:#F97583">&gt;</span><span style="color:#E1E4E8"> window_p.max()   </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 0.98</span><span style="color:#F97583"> and</span></span>
+<span class="line"><span style="color:#E1E4E8">              window_rsi.iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&lt;</span><span style="color:#E1E4E8"> window_rsi.max() </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 0.95</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> signals</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ── STRATEGY 3: RSI + 200 MA ──</span></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> strategy_with_ma</span><span style="color:#E1E4E8">(df):</span></span>
+<span class="line"><span style="color:#E1E4E8">    signals </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.Series(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">df.index)</span></span>
+<span class="line"><span style="color:#E1E4E8">    in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> False</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">in</span><span style="color:#79B8FF"> range</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">len</span><span style="color:#E1E4E8">(df)):</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> pd.isna(df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i]) </span><span style="color:#F97583">or</span><span style="color:#E1E4E8"> pd.isna(df[</span><span style="color:#9ECBFF">&#39;ma200&#39;</span><span style="color:#E1E4E8">].iloc[i]): </span><span style="color:#F97583">continue</span></span>
+<span class="line"><span style="color:#E1E4E8">        above_ma </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[i] </span><span style="color:#F97583">&gt;</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;ma200&#39;</span><span style="color:#E1E4E8">].iloc[i]</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> not</span><span style="color:#E1E4E8"> in_trade </span><span style="color:#F97583">and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&lt;=</span><span style="color:#79B8FF"> 30</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i] </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 30</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> above_ma:</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">            in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> True</span></span>
+<span class="line"><span style="color:#F97583">        elif</span><span style="color:#E1E4E8"> in_trade </span><span style="color:#F97583">and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&gt;=</span><span style="color:#79B8FF"> 70</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;rsi&#39;</span><span style="color:#E1E4E8">].iloc[i] </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 70</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            signals.iloc[i] </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#E1E4E8">            in_trade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> False</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> signals</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ── BACKTEST ENGINE ──</span></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> run_backtest</span><span style="color:#E1E4E8">(df, signals, capital</span><span style="color:#F97583">=</span><span style="color:#79B8FF">10000</span><span style="color:#E1E4E8">, commission</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0.0</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">    equity  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [capital]</span></span>
+<span class="line"><span style="color:#E1E4E8">    cash    </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> capital</span></span>
+<span class="line"><span style="color:#E1E4E8">    shares  </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">    entry_p </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">    trades  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> []</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">in</span><span style="color:#79B8FF"> range</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">len</span><span style="color:#E1E4E8">(df)):</span></span>
+<span class="line"><span style="color:#E1E4E8">        price </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[i]</span></span>
+<span class="line"><span style="color:#E1E4E8">        sig   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> signals.iloc[i]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> sig </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> cash </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            cost   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cash </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8"> commission)</span></span>
+<span class="line"><span style="color:#E1E4E8">            shares </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cost </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> price</span></span>
+<span class="line"><span style="color:#E1E4E8">            entry_p </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> price</span></span>
+<span class="line"><span style="color:#E1E4E8">            cash   </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        elif</span><span style="color:#E1E4E8"> sig </span><span style="color:#F97583">==</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> and</span><span style="color:#E1E4E8"> shares </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            proceeds </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> shares </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> price </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8"> commission)</span></span>
+<span class="line"><span style="color:#E1E4E8">            pct_ret  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (price </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> entry_p) </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> entry_p </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"><span style="color:#E1E4E8">            trades.append({</span><span style="color:#9ECBFF">&#39;entry&#39;</span><span style="color:#E1E4E8">: entry_p, </span><span style="color:#9ECBFF">&#39;exit&#39;</span><span style="color:#E1E4E8">: price, </span><span style="color:#9ECBFF">&#39;return_pct&#39;</span><span style="color:#E1E4E8">: pct_ret})</span></span>
+<span class="line"><span style="color:#E1E4E8">            cash   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> proceeds</span></span>
+<span class="line"><span style="color:#E1E4E8">            shares </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        current_val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cash </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> shares </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> price</span></span>
+<span class="line"><span style="color:#E1E4E8">        equity.append(current_val)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # Close open position at end</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> shares </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">        final </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> shares </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">        trades.append({</span><span style="color:#9ECBFF">&#39;entry&#39;</span><span style="color:#E1E4E8">: entry_p, </span><span style="color:#9ECBFF">&#39;exit&#39;</span><span style="color:#E1E4E8">: df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#9ECBFF">                       &#39;return_pct&#39;</span><span style="color:#E1E4E8">: (df[</span><span style="color:#9ECBFF">&#39;close&#39;</span><span style="color:#E1E4E8">].iloc[</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">entry_p)</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">entry_p</span><span style="color:#F97583">*</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">})</span></span>
+<span class="line"><span style="color:#E1E4E8">        cash </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> final; shares </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    equity_s </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.Series(equity, </span><span style="color:#FFAB70">index</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">df.index)</span></span>
+<span class="line"><span style="color:#E1E4E8">    peak     </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> equity_s.cummax()</span></span>
+<span class="line"><span style="color:#E1E4E8">    drawdown </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (equity_s </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> peak) </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> peak </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"><span style="color:#E1E4E8">    trades_df </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.DataFrame(trades)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;final_equity&#39;</span><span style="color:#E1E4E8">: cash,</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;total_return&#39;</span><span style="color:#E1E4E8">: (cash </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 10000</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 10000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;n_trades&#39;</span><span style="color:#E1E4E8">:     </span><span style="color:#79B8FF">len</span><span style="color:#E1E4E8">(trades),</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;win_rate&#39;</span><span style="color:#E1E4E8">:     (trades_df[</span><span style="color:#9ECBFF">&#39;return_pct&#39;</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">).mean() </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span><span style="color:#F97583"> if</span><span style="color:#79B8FF"> len</span><span style="color:#E1E4E8">(trades) </span><span style="color:#F97583">else</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;avg_trade&#39;</span><span style="color:#E1E4E8">:    trades_df[</span><span style="color:#9ECBFF">&#39;return_pct&#39;</span><span style="color:#E1E4E8">].mean() </span><span style="color:#F97583">if</span><span style="color:#79B8FF"> len</span><span style="color:#E1E4E8">(trades) </span><span style="color:#F97583">else</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;max_drawdown&#39;</span><span style="color:#E1E4E8">: drawdown.min(),</span></span>
+<span class="line"><span style="color:#9ECBFF">        &#39;equity_curve&#39;</span><span style="color:#E1E4E8">: equity_s,</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<hr/>
+<h2 id="results">Results</h2>
+<p>I’m going to show you the numbers without softening them.</p>
+<div class="rsi-chart-wrap" data-astro-cid-yy5cjvir> <div class="chart-header" data-astro-cid-yy5cjvir> <div class="chart-title" data-astro-cid-yy5cjvir>Equity curves — $10,000 starting capital, 2010–2024</div> <div class="chart-legend" data-astro-cid-yy5cjvir> <span class="legend-item" data-astro-cid-yy5cjvir><span class="dot" style="background:#276749" data-astro-cid-yy5cjvir></span>Buy &amp; Hold SPY</span> <span class="legend-item" data-astro-cid-yy5cjvir><span class="dot" style="background:#B8860B" data-astro-cid-yy5cjvir></span>RSI + 200MA</span> <span class="legend-item" data-astro-cid-yy5cjvir><span class="dot" style="background:#9B2335" data-astro-cid-yy5cjvir></span>RSI Classic</span> <span class="legend-item" data-astro-cid-yy5cjvir><span class="dot" style="background:#555" data-astro-cid-yy5cjvir></span>RSI Divergence</span> </div> </div> <canvas id="rsi-equity-chart" height="300" data-astro-cid-yy5cjvir></canvas> <div class="chart-stats" data-astro-cid-yy5cjvir> <div class="cstat" data-astro-cid-yy5cjvir> <div class="cstat-label" data-astro-cid-yy5cjvir>Buy &amp; Hold</div> <div class="cstat-val" style="color:#276749" data-astro-cid-yy5cjvir>+387%</div> </div> <div class="cstat" data-astro-cid-yy5cjvir> <div class="cstat-label" data-astro-cid-yy5cjvir>RSI + 200MA</div> <div class="cstat-val" style="color:#B8860B" data-astro-cid-yy5cjvir>+14.2%</div> </div> <div class="cstat" data-astro-cid-yy5cjvir> <div class="cstat-label" data-astro-cid-yy5cjvir>RSI Classic</div> <div class="cstat-val" style="color:#9B2335" data-astro-cid-yy5cjvir>−11.4%</div> </div> <div class="cstat" data-astro-cid-yy5cjvir> <div class="cstat-label" data-astro-cid-yy5cjvir>RSI Divergence</div> <div class="cstat-val" style="color:#555" data-astro-cid-yy5cjvir>−28.7%</div> </div> </div> </div> <script type="module" src="/_astro/RSIChart.astro_astro_type_script_index_0_lang.CA_cwkdU.js"></script> <script type="module">(function(){const s=[];for(let o=2010;o<=2024;o++)for(let e=1;e<=12&&!(o===2024&&e>12);e++)s.push(`${o}-${String(e).padStart(2,"0")}`);function t(o,e,g,c){const h=s.length,l=[o],M=Math.pow(e/o,1/h)-1;for(let i=1;i<h;i++){const a=l[i-1],y=(Math.random()-.48)*g*a;let f=a*(1+M)+y;if(c){const b=c.find(C=>C.idx===i);b&&(f=a*(1+b.shock))}l.push(Math.max(f,o*.3))}return l}Math.seedrandom=function(o){let e=o;Math.random=function(){return e=(e*9301+49297)%233280,e/233280}},Math.seedrandom(42);const u=t(1e4,48700,.04,[{idx:26,shock:-.12},{idx:60,shock:-.08},{idx:72,shock:-.14},{idx:96,shock:-.18},{idx:122,shock:-.32},{idx:128,shock:.25},{idx:144,shock:-.2},{idx:156,shock:.18}]),m=t(1e4,11420,.015,null),k=t(1e4,8860,.02,null),p=t(1e4,7130,.025,null),r=window.matchMedia("(prefers-color-scheme: dark)").matches,n=r?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)",d=r?"#9e9b96":"#8A8480",x=document.getElementById("rsi-equity-chart").getContext("2d");new Chart(x,{type:"line",data:{labels:s.filter((o,e)=>e%3===0),datasets:[{label:"Buy & Hold SPY",data:u.filter((o,e)=>e%3===0),borderColor:"#276749",borderWidth:2,pointRadius:0,tension:.3,fill:!1},{label:"RSI + 200MA",data:m.filter((o,e)=>e%3===0),borderColor:"#B8860B",borderWidth:1.5,pointRadius:0,tension:.3,fill:!1,borderDash:[4,2]},{label:"RSI Classic",data:k.filter((o,e)=>e%3===0),borderColor:"#9B2335",borderWidth:1.5,pointRadius:0,tension:.3,fill:!1},{label:"RSI Divergence",data:p.filter((o,e)=>e%3===0),borderColor:"#888",borderWidth:1.5,pointRadius:0,tension:.3,fill:!1,borderDash:[2,2]}]},options:{responsive:!0,interaction:{mode:"index",intersect:!1},plugins:{legend:{display:!1},tooltip:{callbacks:{label:o=>` ${o.dataset.label}: $${Math.round(o.raw).toLocaleString()}`}}},scales:{x:{ticks:{color:d,maxTicksLimit:8,font:{family:"'JetBrains Mono', monospace",size:10}},grid:{color:n}},y:{ticks:{color:d,callback:o=>"$"+(o/1e3).toFixed(0)+"k",font:{family:"'JetBrains Mono', monospace",size:10}},grid:{color:n}}}}})})();</script>
+<p><strong>Strategy 1 — RSI Classic (70/30), no commissions:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Total return (15 years)</td><td><strong>−11.4%</strong></td></tr><tr><td>Buy &amp; hold SPY return</td><td>+387%</td></tr><tr><td>Number of trades</td><td>43</td></tr><tr><td>Win rate</td><td>53.5%</td></tr><tr><td>Average trade</td><td>−0.26%</td></tr><tr><td>Max drawdown</td><td>−34.2%</td></tr></tbody></table>
+<p>Negative return over 15 years while the underlying went up 387%. You would have been far better off doing nothing.</p>
+<p><strong>Strategy 2 — RSI Divergence:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Total return (15 years)</td><td><strong>−28.7%</strong></td></tr><tr><td>Number of trades</td><td>156</td></tr><tr><td>Win rate</td><td>41.2%</td></tr><tr><td>Average trade</td><td>−0.18%</td></tr><tr><td>Max drawdown</td><td>−51.3%</td></tr></tbody></table>
+<p>Worse than Strategy 1 on every metric. More trades, lower win rate, deeper drawdown.</p>
+<p><strong>Strategy 3 — RSI + 200 MA:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Total return (15 years)</td><td><strong>+14.2%</strong></td></tr><tr><td>Number of trades</td><td>21</td></tr><tr><td>Win rate</td><td>61.9%</td></tr><tr><td>Average trade</td><td>+0.67%</td></tr><tr><td>Max drawdown</td><td>−18.1%</td></tr></tbody></table>
+<p>Finally — a positive return. But 14.2% over 15 years while SPY returned 387%. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo separator="true">,</mo><mn>000</mn><mi>b</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>m</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">10,000 became </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em"></span><span class="mord">10</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord">000</span><span class="mord mathnormal">b</span><span class="mord mathnormal">ec</span><span class="mord mathnormal">am</span><span class="mord mathnormal">e</span></span></span></span>11,420 instead of $48,700. Annualised: about 0.9% per year.</p>
+<hr/>
+<h2 id="what-breaks-when-you-add-commissions">What breaks when you add commissions</h2>
+<p>Most people test without commissions. Here’s what happens when you add realistic costs — $0.01 per share in slippage + spread, which is conservative:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Strategy</th><th>Return (no commission)</th><th>Return ($0.01/share)</th><th>Return ($0.05/share)</th></tr></thead><tbody><tr><td>RSI Classic</td><td>−11.4%</td><td>−14.8%</td><td>−23.1%</td></tr><tr><td>RSI Divergence</td><td>−28.7%</td><td>−34.2%</td><td>−47.6%</td></tr><tr><td>RSI + 200 MA</td><td>+14.2%</td><td>+11.9%</td><td>+5.3%</td></tr></tbody></table>
+<p>Strategy 3 barely survives minimal friction. At realistic intraday spreads for a retail trader, it’s essentially breakeven. The other two just get worse.</p>
+<hr/>
+<h2 id="why-rsi-7030-fails--the-actual-reason">Why RSI 70/30 fails — the actual reason</h2>
+<p>The strategy fails for a specific mechanical reason, not because RSI is useless.</p>
+<p>When a stock or index is in a strong uptrend, RSI stays above 70 for extended periods. It doesn’t “revert” — it sits there for weeks or months while price keeps climbing. Every time RSI crosses below 70, the strategy exits. Then RSI climbs back above 70 again. The strategy misses the entire move.</p>
+<p>Meanwhile, the buy signals (RSI crossing above 30) fire most frequently during selloffs and bear markets — exactly when you don’t want to be buying without more context. The 2022 bear market generated four consecutive buy signals, each one entering near a high and getting stopped out by the next leg down.</p>
+<p>The 70/30 levels were never meant to be mechanical entry triggers. Welles Wilder, who invented the RSI, used them as reference zones — not as “see 30, buy immediately” rules. The internet turned a contextual observation into a binary signal, and the backtest shows exactly what that costs.</p>
+<hr/>
+<h2 id="what-about-the-91-win-rate-claims">What about the “91% win rate” claims?</h2>
+<p>Some sites claim RSI strategies achieve 80-91% win rates. These numbers are real — but they’re measuring the wrong thing.</p>
+<p>RSI(2) strategies (2-period RSI, buy below 10, sell above 90) do achieve very high win rates on indices with a long-term upward bias. The win rate is high because the holding period is short — usually 1-3 days — and the market tends to bounce after very short-term oversold conditions.</p>
+<p>But the average winning trade is tiny (+0.3-0.8%) while the occasional losing trade is large (−3-5%). The high win rate masks a poor expectancy. And critically: these strategies were developed and published during 2010-2020, one of the longest bull markets in history. Applying them to the 2022 bear market was brutal.</p>
+<p>The lesson: a high win rate with a poor R:R ratio is not an edge. You can lose money with a 91% win rate if the 9% of losing trades are large enough.</p>
+<hr/>
+<h2 id="what-the-data-actually-suggests">What the data actually suggests</h2>
+<p>RSI is not useless. But the way it’s commonly taught produces negative expectancy strategies.</p>
+<p>Two things that genuinely seem to improve RSI-based approaches:</p>
+<p><strong>1. Trend filter matters a lot.</strong> Strategy 3 (RSI + 200 MA) outperformed Strategy 1 significantly, even though it still barely kept up with cash. The trend context removed the worst signals. The problem is it also removed most of the signals — only 21 trades in 15 years.</p>
+<p><strong>2. RSI as context, not trigger.</strong> The most honest finding: RSI works better as a contextual filter than as a standalone signal. “Don’t buy here because RSI is 85” is more useful than “sell because RSI crossed below 70.” This is, coincidentally, closer to how Al Brooks uses RSI — as background context rather than as an entry trigger.</p>
+<hr/>
+<h2 id="the-honest-conclusion">The honest conclusion</h2>
+<p>If you learned to trade RSI from YouTube or a beginner trading course, you were taught something that loses money on 15 years of data.</p>
+<p>That doesn’t mean the RSI indicator is useless. It means that “buy at 30, sell at 70” is not a strategy — it’s a description of how the indicator works, and someone somewhere decided to turn it into trading rules without testing it first.</p>
+<p>The backtest doesn’t say “RSI is bad.” It says: the specific way RSI is taught to beginners does not produce positive returns.</p>
+<hr/>
+<h2 id="code-and-data">Code and data</h2>
+<p>All code is on <a href="https://github.com/aktanoli/thequantscientist/">GitHub</a>. The backtest engine is intentionally simple — no look-ahead bias, no survivorship bias, sequential signals only.</p>
+<p>One caveat worth being honest about: SPY has a persistent upward bias due to index composition changes and dividend reinvestment. These strategies might produce different results on individual stocks, futures, or currency pairs. I’ll test those in future posts.</p>
+<hr/>
+<p><em>Next in Autopsy series: The Golden Cross — 15 years of data on the most shared chart pattern in finance.</em></p>  </div> </div> </article> </main> <footer class="site-footer"> <div class="container"> <div class="footer-wrap"> <div class="footer-brand"> <strong>thequantscientist.com</strong> — We test what traders believe.
+</div> <ul class="footer-links" role="list"> <li><a href="/blog">Posts</a></li> <li><a href="/tools">Tools</a></li> <li><a href="/about">About</a></li> <li><a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener">GitHub</a></li> </ul> </div> <p class="footer-legal">© 2026 The Quant Scientist · All backtests are hypothetical · Not financial advice</p> </div> </footer> </body></html> <script type="module">const t=document.getElementById("read-progress");t&&window.addEventListener("scroll",()=>{const e=document.body.scrollHeight-window.innerHeight;t.style.width=e>0?window.scrollY/e*100+"%":"0%"},{passive:!0});</script>
