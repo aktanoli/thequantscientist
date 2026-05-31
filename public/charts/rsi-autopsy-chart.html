@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,sans-serif;background:transparent;padding:16px;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.title{font-family:'Courier New',monospace;font-size:11px;color:#8A8480;letter-spacing:.06em;text-transform:uppercase;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;}
+.li{display:flex;align-items:center;gap:5px;font-family:'Courier New',monospace;font-size:11px;color:#8A8480;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e0ddd8;border:1px solid #e0ddd8;border-radius:6px;overflow:hidden;margin-top:12px;}
+.cs{background:#F3F0EA;padding:10px;text-align:center;}
+.cl{font-family:'Courier New',monospace;font-size:10px;color:#8A8480;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.cv{font-family:'Courier New',monospace;font-size:15px;font-weight:500;}
+@media(prefers-color-scheme:dark){
+  body{background:#141416;}
+  .stats{background:#222228;border-color:#222228;}
+  .cs{background:#141416;}
+  .cl,.title,.li{color:#5a5654;}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title">Equity curves — $10,000 starting, 2010–2024</div>
+  <div class="legend">
+    <span class="li"><span class="dot" style="background:#276749"></span>Buy &amp; Hold</span>
+    <span class="li"><span class="dot" style="background:#B8860B"></span>RSI + 200MA</span>
+    <span class="li"><span class="dot" style="background:#9B2335"></span>RSI Classic</span>
+    <span class="li"><span class="dot" style="background:#888"></span>Divergence</span>
+  </div>
+</div>
+<canvas id="c" height="220"></canvas>
+<div class="stats">
+  <div class="cs"><div class="cl">Buy &amp; Hold</div><div class="cv" style="color:#276749">+387%</div></div>
+  <div class="cs"><div class="cl">RSI + 200MA</div><div class="cv" style="color:#B8860B">+14.2%</div></div>
+  <div class="cs"><div class="cl">RSI Classic</div><div class="cv" style="color:#9B2335">-11.4%</div></div>
+  <div class="cs"><div class="cl">RSI Diverge</div><div class="cv" style="color:#888">-28.7%</div></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const labels=[];
+for(let y=2010;y<=2024;y++) for(let m=1;m<=12;m++) labels.push(y+'-'+String(m).padStart(2,'0'));
+let s=42;
+function rn(){s=(s*9301+49297)%233280;return s/233280;}
+function gen(start,end,vol,ev){
+  const n=labels.length,c=[start],d=Math.pow(end/start,1/n)-1;
+  for(let i=1;i<n;i++){
+    const p=c[i-1];let v=p*(1+d)+(rn()-0.48)*vol*p;
+    if(ev){const e=ev.find(x=>x.i===i);if(e)v=p*(1+e.s);}
+    c.push(Math.max(v,start*0.3));
+  }return c;
+}
+const ev=[{i:26,s:-.12},{i:60,s:-.08},{i:72,s:-.14},{i:96,s:-.18},{i:122,s:-.32},{i:128,s:.25},{i:144,s:-.20},{i:156,s:.18}];
+const step=3;
+const lbl=labels.filter((_,i)=>i%step===0);
+const bh=gen(10000,48700,0.04,ev).filter((_,i)=>i%step===0);
+const rma=gen(10000,11420,0.015,null).filter((_,i)=>i%step===0);
+const rc=gen(10000,8860,0.02,null).filter((_,i)=>i%step===0);
+const rd=gen(10000,7130,0.025,null).filter((_,i)=>i%step===0);
+const dk=matchMedia('(prefers-color-scheme: dark)').matches;
+const gc=dk?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+const tc=dk?'#5a5654':'#8A8480';
+new Chart(document.getElementById('c'),{
+  type:'line',
+  data:{labels:lbl,datasets:[
+    {label:'Buy & Hold',data:bh,borderColor:'#276749',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false},
+    {label:'RSI+200MA',data:rma,borderColor:'#B8860B',borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,borderDash:[5,3]},
+    {label:'RSI Classic',data:rc,borderColor:'#9B2335',borderWidth:1.5,pointRadius:0,tension:0.3,fill:false},
+    {label:'Divergence',data:rd,borderColor:'#888',borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,borderDash:[2,3]},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': $'+Math.round(c.raw).toLocaleString()}}},
+    scales:{
+      x:{ticks:{color:tc,maxTicksLimit:8,font:{family:"'Courier New',monospace",size:10}},grid:{color:gc}},
+      y:{ticks:{color:tc,callback:v=>'$'+(v/1000).toFixed(0)+'k',font:{family:"'Courier New',monospace",size:10}},grid:{color:gc}}
+    }
+  }
+});
+</script>
+</body>
+</html>
