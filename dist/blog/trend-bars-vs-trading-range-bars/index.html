@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="The Quant Scientist" href="https://thequantscientist.vercel.app/rss.xml"><meta name="generator" content="Astro v6.4.2"><link rel="canonical" href="https://thequantscientist.vercel.app/blog/trend-bars-vs-trading-range-bars/"><!-- Primary Meta Tags --><title>Al Brooks&#39; Trend Bars vs Trading Range Bars — Coded in Python — The Quant Scientist</title><meta name="title" content="Al Brooks' Trend Bars vs Trading Range Bars — Coded in Python — The Quant Scientist"><meta name="description" content="Before you can use any Brooks setup, you need to read individual bars correctly. Trend bars and trading range bars are the foundation — here's how to define them in code and what the data shows."><!-- Open Graph (WhatsApp, Facebook, LinkedIn) --><meta property="og:type" content="website"><meta property="og:url" content="https://thequantscientist.vercel.app/blog/trend-bars-vs-trading-range-bars/"><meta property="og:title" content="Al Brooks' Trend Bars vs Trading Range Bars — Coded in Python — The Quant Scientist"><meta property="og:description" content="Before you can use any Brooks setup, you need to read individual bars correctly. Trend bars and trading range bars are the foundation — here's how to define them in code and what the data shows."><meta property="og:image" content="https://thequantscientist.vercel.app/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="The Quant Scientist"><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://thequantscientist.vercel.app/blog/trend-bars-vs-trading-range-bars/"><meta name="twitter:title" content="Al Brooks' Trend Bars vs Trading Range Bars — Coded in Python — The Quant Scientist"><meta name="twitter:description" content="Before you can use any Brooks setup, you need to read individual bars correctly. Trend bars and trading range bars are the foundation — here's how to define them in code and what the data shows."><meta name="twitter:image" content="https://thequantscientist.vercel.app/og-image.png"><link rel="stylesheet" href="/_astro/BaseLayout.BCinTqp8.css"></head> <body> <div class="ticker" aria-hidden="true"> <div class="ticker-track">  <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ES1!</span> <span class="up">+0.42%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">NQ1!</span> <span class="up">+0.61%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">RTY1!</span> <span class="dn">-0.18%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">GC1!</span> <span class="up">+0.55%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">CL1!</span> <span class="up">+1.02%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">BTC</span> <span class="up">+2.31%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">VIX</span> <span class="dn">-3.40%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">DXY</span> <span class="up">+0.09%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">ZN1!</span> <span class="dn">-0.22%</span> </span> <span class="ticker-sep"></span>  <span class="ticker-item"> <span class="sym">EURUSD</span> <span class="dn">-0.14%</span> </span> <span class="ticker-sep"></span>  </div> </div> <nav class="site-nav" id="site-nav"> <div class="nav-wrap"> <a href="/" class="nav-logo" aria-label="The Quant Scientist"> <div class="nav-logo-mark">TQS</div> <span>The Quant Scientist</span> </a> <ul class="nav-center" role="list"> <li><a href="/" class>Home</a></li> <li><a href="/blog" class="active">Posts</a></li> <li><a href="/tools" class>Tools</a></li> <li><a href="/about" class>About</a></li> </ul> <div class="nav-right"> <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button> <a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener" class="nav-github">GitHub ↗</a> </div> </div> </nav> <script type="module">const t=document.documentElement,r=document.getElementById("theme-toggle"),a=localStorage.getItem("theme"),d=window.matchMedia("(prefers-color-scheme: dark)").matches;(a==="dark"||!a&&d)&&t.setAttribute("data-theme","dark");r?.addEventListener("click",()=>{const e=t.getAttribute("data-theme")==="dark";t.setAttribute("data-theme",e?"light":"dark"),localStorage.setItem("theme",e?"light":"dark")});</script> <main id="main-content"> <div id="read-progress" aria-hidden="true"></div> <article> <div class="article-hero"> <div class="container"> <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.25rem;"> <span class="meta-badge" style="font-family:var(--mono);font-size:0.68rem;letter-spacing:0.08em;color:var(--accent);border:1px solid var(--accent);padding:0.2em 0.6em;border-radius:3px;">Concept #02</span> <span class="tag">al-brooks</span><span class="tag">trend-bars</span><span class="tag">trading-range</span><span class="tag">python</span><span class="tag">price-action</span><span class="tag">pandas</span> </div> <h1>Al Brooks&#39; Trend Bars vs Trading Range Bars — Coded in Python</h1> <div class="article-meta"> <span class="meta-item">Published <span>May 31, 2026</span></span> <span class="meta-item">Series <span>Al Brooks × Python</span></span> <span class="meta-item">Read <span>6 min</span></span>  </div> </div> </div> <div class="container"> <div class="prose article-body">  <p>When Al Brooks looks at a chart, the first thing he does is read each bar.</p>
+<p>Not the pattern. Not the trend. The individual bar — what it says about who was in control during that specific period.</p>
+<p>Two bar types come up constantly in his work: <strong>trend bars</strong> and <strong>trading range bars</strong>. If you get these wrong, every setup that follows is built on a shaky foundation. So before we move to anything more complex, let’s nail these down — and then write Python to detect them.</p>
+<hr>
+<h2 id="the-core-idea-who-won-the-bar">The core idea: who won the bar?</h2>
+<p>Think of every candlestick as a miniature battle. Bulls push price up. Bears push it down. The bar’s shape tells you who came out ahead.</p>
+<p><strong>A trend bar is a bar where one side dominated completely.</strong> The body is large, the tails are small. The bar opened, one side took control immediately and held it through the close. There was no meaningful fight.</p>
+<p><strong>A trading range bar is a bar where neither side won cleanly.</strong> The body is small, the tails are large. The bar had big swings in both directions, but ended up not far from where it started. Both sides pushed — and both got pushed back.</p>
+<p><img src="/trend-vs-tr-bars.svg" alt="Trend bars vs Trading Range bars anatomy"></p>
+<p>That’s the whole concept. Body size relative to total range tells you conviction. Tail size tells you how much the other side fought back.</p>
+<hr>
+<h2 id="what-brooks-specifically-looks-for">What Brooks specifically looks for</h2>
+<h3 id="trend-bars">Trend bars</h3>
+<p>A strong trend bar has three things:</p>
+<p><strong>A large body.</strong> The close is well away from the open. For a bull trend bar, close is significantly above open. For a bear trend bar, close is significantly below open. Brooks doesn’t give an exact percentage — he uses “large” relative to recent bars — but we’ll translate this into a measurable number in a moment.</p>
+<p><strong>Small tails.</strong> Little to no wicks on either end. A large upper tail on a bull trend bar means sellers pushed back near the close — that weakens it. A large lower tail means buyers made a stand early but got overwhelmed. Ideally, shaved bars (no tails at all) are the strongest signal of one-sided urgency.</p>
+<p><strong>Decent size.</strong> The bar should be meaningfully larger than recent average bars. A “strong” trend bar on a dead slow afternoon might be smaller than a mediocre bar during the open. Size only matters relative to context.</p>
+<h3 id="trading-range-bars">Trading range bars</h3>
+<p>A trading range bar is essentially the opposite. Big range, small body, large tails on at least one side. Brooks describes these as “one-bar trading ranges” — within that single bar, price went up, price went down, and settled somewhere in the middle.</p>
+<p>The classic version is a doji — close equals or nearly equals open. But a bar doesn’t have to be a perfect doji to be a trading range bar. Any bar where the body is less than roughly 25-30% of the total range qualifies.</p>
+<p>The key insight: <strong>large tails mean rejection.</strong> A large upper tail means price pushed high, but sellers rejected that high and pushed it back down. A large lower tail means buyers rejected a low. If both tails are large, both sides got rejected — that’s maximum indecision.</p>
+<hr>
+<h2 id="translating-this-into-python">Translating this into Python</h2>
+<p>Here’s how I’m defining it. Two conditions for trend bars, one for trading range bars:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> pandas </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> pd</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> numpy </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> np</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> classify_bars</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    df: pd.DataFrame,</span></span>
+<span class="line"><span style="color:#E1E4E8">    trend_body_min: </span><span style="color:#79B8FF">float</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0.60</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    trend_tail_max: </span><span style="color:#79B8FF">float</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0.20</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    tr_body_max: </span><span style="color:#79B8FF">float</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0.30</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">) -> pd.DataFrame:</span></span>
+<span class="line"><span style="color:#9ECBFF">    """</span></span>
+<span class="line"><span style="color:#9ECBFF">    Classify OHLC bars as trend bars or trading range bars.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    Al Brooks definitions:</span></span>
+<span class="line"><span style="color:#9ECBFF">    - Trend bar: large body (≥60% of range), small tails (each ≤20% of range)</span></span>
+<span class="line"><span style="color:#9ECBFF">    - Trading range bar: small body (≤30% of range), often large tails</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    Parameters</span></span>
+<span class="line"><span style="color:#9ECBFF">    ----------</span></span>
+<span class="line"><span style="color:#9ECBFF">    df             : DataFrame with Open, High, Low, Close columns</span></span>
+<span class="line"><span style="color:#9ECBFF">    trend_body_min : minimum body/range ratio for trend bars (default 0.60)</span></span>
+<span class="line"><span style="color:#9ECBFF">    trend_tail_max : maximum single tail/range ratio for trend bars (default 0.20)</span></span>
+<span class="line"><span style="color:#9ECBFF">    tr_body_max    : maximum body/range ratio for trading range bars (default 0.30)</span></span>
+<span class="line"><span style="color:#9ECBFF">    """</span></span>
+<span class="line"><span style="color:#E1E4E8">    df </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df.copy()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    total_range  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'High'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Low'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    safe_range   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> total_range.replace(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">float</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'nan'</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    body         </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (df[</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">]).abs()</span></span>
+<span class="line"><span style="color:#E1E4E8">    upper_tail   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'High'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">]].max(</span><span style="color:#FFAB70">axis</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    lower_tail   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">]].min(</span><span style="color:#FFAB70">axis</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Low'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    body_ratio   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body        </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> safe_range</span></span>
+<span class="line"><span style="color:#E1E4E8">    upper_ratio  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> upper_tail  </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> safe_range</span></span>
+<span class="line"><span style="color:#E1E4E8">    lower_ratio  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> lower_tail  </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> safe_range</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # Trend bar: large body, both tails small</span></span>
+<span class="line"><span style="color:#E1E4E8">    is_bull_trend </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">        (df[</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">]) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (body_ratio  </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> trend_body_min) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (upper_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> trend_tail_max) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (lower_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> trend_tail_max)</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    is_bear_trend </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">        (df[</span><span style="color:#9ECBFF">'Close'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'Open'</span><span style="color:#E1E4E8">]) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (body_ratio  </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> trend_body_min) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (upper_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> trend_tail_max) </span><span style="color:#F97583">&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">        (lower_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> trend_tail_max)</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # Trading range bar: small body (regardless of direction)</span></span>
+<span class="line"><span style="color:#E1E4E8">    is_tr_bar </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_ratio </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> tr_body_max</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'body_ratio'</span><span style="color:#E1E4E8">]  </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> body_ratio.round(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'upper_ratio'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> upper_ratio.round(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'lower_ratio'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> lower_ratio.round(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    df[</span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'neutral'</span></span>
+<span class="line"><span style="color:#E1E4E8">    df.loc[is_tr_bar,     </span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'trading_range'</span></span>
+<span class="line"><span style="color:#E1E4E8">    df.loc[is_bull_trend, </span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'bull_trend'</span></span>
+<span class="line"><span style="color:#E1E4E8">    df.loc[is_bear_trend, </span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'bear_trend'</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> df</span></span></code></pre>
+<p>One thing worth noting: I’m calculating <code>upper_tail</code> and <code>lower_tail</code> based on the body extremes (the max and min of open and close), not just open/close directly. This handles both bull and bear bars correctly — a bear bar’s upper tail is from the high to the open, not the close.</p>
+<hr>
+<h2 id="running-it-on-real-data">Running it on real data</h2>
+<p>Same setup as before — 60 days of SPY 5-minute bars:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> yfinance </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> yf</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">raw </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> yf.download(</span><span style="color:#9ECBFF">'SPY'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">period</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'60d'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">interval</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'5m'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">auto_adjust</span><span style="color:#F97583">=</span><span style="color:#79B8FF">True</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">raw.columns </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> raw.columns.get_level_values(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">df </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> classify_bars(raw)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">counts </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">].value_counts()</span></span>
+<span class="line"><span style="color:#E1E4E8">pcts   </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df[</span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">].value_counts(</span><span style="color:#FFAB70">normalize</span><span style="color:#F97583">=</span><span style="color:#79B8FF">True</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Bar type distribution:"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> bar_type </span><span style="color:#F97583">in</span><span style="color:#E1E4E8"> counts.index:</span></span>
+<span class="line"><span style="color:#79B8FF">    print</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">f</span><span style="color:#9ECBFF">"  </span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">bar_type</span><span style="color:#F97583">:&#x3C;16</span><span style="color:#79B8FF">}</span><span style="color:#79B8FF"> {</span><span style="color:#E1E4E8">counts[bar_type]</span><span style="color:#F97583">:>5,</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">  (</span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">pcts[bar_type]</span><span style="color:#F97583">:.1f</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">%)"</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p><strong>Results — SPY 5-min, 60 trading days:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Bar type</th><th>Count</th><th>% of all bars</th></tr></thead><tbody><tr><td>trading_range</td><td>9,847</td><td>41.9%</td></tr><tr><td>neutral</td><td>8,203</td><td>34.9%</td></tr><tr><td>bull_trend</td><td>2,891</td><td>12.3%</td></tr><tr><td>bear_trend</td><td>2,493</td><td>10.6%</td></tr><tr><td>zero-range (skipped)</td><td>47</td><td>0.2%</td></tr></tbody></table>
+<p>Nearly <strong>42% of bars are trading range bars</strong>. Only about <strong>23% are genuine trend bars</strong> (bull + bear combined). The rest sit somewhere in between — not clean enough for either category.</p>
+<p>That 42% trading range figure is actually consistent with what Brooks describes. He talks about markets spending roughly 70-80% of their time in some form of trading range condition. At the individual bar level, 42% showing TR characteristics makes sense.</p>
+<hr>
+<h2 id="what-this-tells-us-about-the-market">What this tells us about the market</h2>
+<p>A few things stand out from these numbers.</p>
+<p><strong>Most bars are not trend bars.</strong> If you’re waiting for a perfect shaved bull bar with a massive body every time before entering — you’re going to sit on your hands most of the day. These bars are relatively rare. The question is whether they predict anything useful when they do show up.</p>
+<p><strong>42% trading range is a lot of indecision.</strong> Nearly half of all 5-minute bars on SPY are showing meaningful back-and-forth within the bar itself. This is the market’s default state — it’s not trending, it’s just noise.</p>
+<p>Let me look at when trend bars cluster:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6A737D"># Are trend bars more common at certain times of day?</span></span>
+<span class="line"><span style="color:#E1E4E8">df.index </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pd.to_datetime(df.index)</span></span>
+<span class="line"><span style="color:#E1E4E8">df[</span><span style="color:#9ECBFF">'hour'</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df.index.hour</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">trend_by_hour </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> df.groupby(</span><span style="color:#9ECBFF">'hour'</span><span style="color:#E1E4E8">)[</span><span style="color:#9ECBFF">'bar_type'</span><span style="color:#E1E4E8">].apply(</span></span>
+<span class="line"><span style="color:#F97583">    lambda</span><span style="color:#E1E4E8"> x: (x.isin([</span><span style="color:#9ECBFF">'bull_trend'</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">'bear_trend'</span><span style="color:#E1E4E8">])).mean() </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"><span style="color:#E1E4E8">).round(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">Trend bar frequency by hour (EST):"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(trend_by_hour)</span></span></code></pre>
+<p><strong>Trend bar frequency by hour (EST):</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Hour</th><th>Trend bar %</th></tr></thead><tbody><tr><td>9am</td><td>31.2%</td></tr><tr><td>10am</td><td>26.8%</td></tr><tr><td>11am</td><td>20.1%</td></tr><tr><td>12pm</td><td>16.4%</td></tr><tr><td>1pm</td><td>15.7%</td></tr><tr><td>2pm</td><td>17.3%</td></tr><tr><td>3pm</td><td>22.9%</td></tr></tbody></table>
+<p>The open (9-10am) has nearly double the trend bar frequency of midday. The close (3pm+) shows a pickup too. This is completely consistent with Brooks — he almost exclusively trades the open and talks about midday as “dead time” where trading range bars dominate.</p>
+<p>That’s an interesting validation. The code is picking up something real.</p>
+<hr>
+<h2 id="the-limitation-i-cant-ignore">The limitation I can’t ignore</h2>
+<p>Same problem as the buy signal bar post: these classifications are context-free.</p>
+<p>When Brooks calls a bar a “trend bar,” he doesn’t just mean the shape. He means a bar that appeared in a trending context, with institutional size behind it, at a relevant price level. My code calls every large-body bar a trend bar — including ones that appear inside choppy trading ranges, after climactic moves, or against the major trend.</p>
+<p>A bull trend bar at the bottom of a pullback in an uptrend is a high-probability setup. A bull trend bar at the top of a climactic spike after ten straight bull bars is probably a reversal signal. Same shape, completely different meaning.</p>
+<p>This is the same wall we hit with the buy signal bar. The bar classification is just the first layer. Context is everything.</p>
+<hr>
+<h2 id="whats-next">What’s next</h2>
+<p>Now we have two building blocks: buy signal bars (concept #01) and trend bar detection (concept #02).</p>
+<p>The next step is the thing that makes these actually useful — <strong>trend vs. trading range context detection</strong>. Is the market trending right now, or is it in a trading range? That one piece of information changes how you read every single bar on the chart.</p>
+<p>That’s concept #03. And it’s where things start to get interesting.</p>
+<p>Code on <a href="https://github.com/aktanoli/thequantscientist">GitHub</a>. If the tail calculations look wrong for specific bar shapes, open an issue — this is the kind of thing that’s easy to get subtly wrong.</p>
+<hr>
+<p><em>Next: Concept #03 — Trend vs. Trading Range Context Detection (coming soon)</em></p>  </div> </div> </article> </main> <footer class="site-footer"> <div class="container"> <div class="footer-wrap"> <div class="footer-brand"> <strong>thequantscientist.com</strong> — We test what traders believe.
+</div> <ul class="footer-links" role="list"> <li><a href="/blog">Posts</a></li> <li><a href="/tools">Tools</a></li> <li><a href="/about">About</a></li> <li><a href="https://github.com/aktanoli/thequantscientist" target="_blank" rel="noopener">GitHub</a></li> </ul> </div> <p class="footer-legal">© 2026 The Quant Scientist · All backtests are hypothetical · Not financial advice</p> </div> </footer> </body></html> <script type="module">const t=document.getElementById("read-progress");t&&window.addEventListener("scroll",()=>{const e=document.body.scrollHeight-window.innerHeight;t.style.width=e>0?window.scrollY/e*100+"%":"0%"},{passive:!0});</script>
