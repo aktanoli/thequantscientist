@@ -129,35 +129,43 @@ const autopsyPosts = allPosts.filter(p => p.data.series === 'autopsy');
       </div>
 
       <div class="posts-grid">
-        <a href="/blog/rsi-strategy-backtest-autopsy/" class="post-card">
-          <div class="post-card-top">
-            <span class="autopsy-badge">Autopsy #01</span>
-            <span class="post-date">Jun 1, 2026</span>
+        {autopsyPosts.slice(0,3).map((post, i) => (
+          <a href={`/blog/${post.id}/`} class="post-card">
+            <div class="post-card-top">
+              <span class="autopsy-badge">Autopsy #{String(i+1).padStart(2,'0')}</span>
+              <span class="post-date">
+                {post.data.pubDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
+              </span>
+            </div>
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+            {post.data.tags && (
+              <div class="post-tags">
+                {post.data.tags.slice(0,3).map((t: string) => <span class="tag">{t}</span>)}
+              </div>
+            )}
+          </a>
+        ))}
+        {autopsyPosts.length < 2 && (
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="autopsy-badge">Autopsy #02</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>The Golden Cross Myth — 200 EMA Backtested on 15 Years of Data</h2>
+            <p>Every finance influencer swears by it. The data tells a more complicated story.</p>
           </div>
-          <h2>I Backtested the 3 Most Popular RSI Strategies. Here's the Autopsy.</h2>
-          <p>RSI 70/30, RSI divergence, RSI + 200MA — three strategies taught on thousands of blogs. 15 years of SPY data. Two lost money.</p>
-          <div class="post-tags">
-            <span class="tag">rsi</span>
-            <span class="tag">backtest</span>
-            <span class="tag">python</span>
+        )}
+        {autopsyPosts.length < 3 && (
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="autopsy-badge">Autopsy #03</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>Does "Cut Losses Short, Let Profits Run" Actually Work?</h2>
+            <p>The most repeated rule in trading — tested mechanically across 5,000 simulated trades.</p>
           </div>
-        </a>
-        <div class="post-card coming-soon-card">
-          <div class="post-card-top">
-            <span class="autopsy-badge">Autopsy #02</span>
-            <span class="coming-soon-label">Coming soon</span>
-          </div>
-          <h2>The Golden Cross Myth — 200 EMA Backtested on 15 Years of Data</h2>
-          <p>Every finance influencer swears by it. The data tells a more complicated story.</p>
-        </div>
-        <div class="post-card coming-soon-card">
-          <div class="post-card-top">
-            <span class="autopsy-badge">Autopsy #03</span>
-            <span class="coming-soon-label">Coming soon</span>
-          </div>
-          <h2>Does "Cut Losses Short, Let Profits Run" Actually Work? A Python Test</h2>
-          <p>The most repeated rule in trading — tested mechanically across 5,000 simulated trades.</p>
-        </div>
+        )}
       </div>
     </div>
   </section>
