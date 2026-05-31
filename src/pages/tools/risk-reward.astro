@@ -51,11 +51,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="rr-field">
           <label>Instrument</label>
           <select id="instrument" onchange="calc()">
-            <option value="1" selected>Stocks / ETF (1 share = $1)</option>
-            <option value="50">ES Futures (1 point = $50)</option>
-            <option value="20">NQ Futures (1 point = $20)</option>
-            <option value="5">MES Micro (1 point = $5)</option>
-            <option value="2">MNQ Micro (1 point = $2)</option>
+            <optgroup label="US Futures">
+              <option value="50" selected>ES — S&amp;P 500 ($50/pt)</option>
+              <option value="20">NQ — Nasdaq 100 ($20/pt)</option>
+              <option value="5">MES — Micro S&amp;P ($5/pt)</option>
+              <option value="2">MNQ — Micro Nasdaq ($2/pt)</option>
+              <option value="100">YM — Dow Jones ($5/pt × 20 = $100)</option>
+              <option value="10">RTY — Russell 2000 ($10/pt)</option>
+            </optgroup>
+            <optgroup label="European Futures">
+              <option value="25">DAX (€25/pt)</option>
+              <option value="10">FTSE 100 (£10/pt)</option>
+              <option value="10">CAC 40 (€10/pt)</option>
+            </optgroup>
+            <optgroup label="Crypto (spot)">
+              <option value="1">BTC — Bitcoin ($1/$ move)</option>
+              <option value="1">ETH — Ethereum ($1/$ move)</option>
+            </optgroup>
+            <optgroup label="Stocks / Other">
+              <option value="1">Stocks / ETF ($1/share)</option>
+              <option value="1">Forex / Custom</option>
+            </optgroup>
           </select>
         </div>
 
