@@ -1,43 +1,112 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-const posts = (await getCollection('blog')).sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const brooksPosts   = allPosts.filter(p => p.data.series === 'brooks' || p.data.concept);
+const autopsyPosts  = allPosts.filter(p => p.data.series === 'autopsy');
+const recentPosts   = allPosts.slice(0, 4);
 ---
+
 <BaseLayout title="Home">
+
+  <!-- Hero -->
   <section class="hero">
+    <div class="hero-grid-overlay" aria-hidden="true"></div>
     <div class="container">
       <div class="hero-kicker">The Quant Scientist</div>
-      <h1>Al Brooks price action,<br /><em>measured in code.</em></h1>
-      <p class="hero-desc">Learning Brooks from scratch and backtesting every concept in Python. No holy grails — just data, charts, and honest results.</p>
+      <h1>We test what<br /><em>traders believe.</em></h1>
+      <p class="hero-desc">
+        Al Brooks price action and popular trading strategies — coded in Python,
+        backtested on real data, results shared honestly.
+        No holy grails. Just numbers.
+      </p>
       <div class="hero-stats">
-        <div class="stat"><span class="stat-val">{posts.length}</span><span class="stat-label">Concepts coded</span></div>
-        <div class="stat"><span class="stat-val">10</span><span class="stat-label">Planned concepts</span></div>
-        <div class="stat"><span class="stat-val">Python</span><span class="stat-label">Primary stack</span></div>
-        <div class="stat"><span class="stat-val">ES · NQ</span><span class="stat-label">Instruments</span></div>
+        <div class="stat">
+          <span class="stat-val">{allPosts.length}</span>
+          <span class="stat-label">Posts published</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">2</span>
+          <span class="stat-label">Active series</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">Python</span>
+          <span class="stat-label">Primary stack</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">ES · NQ</span>
+          <span class="stat-label">Instruments</span>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Series 1: Al Brooks -->
   <section class="posts-section">
     <div class="container">
       <div class="section-header">
-        <span class="section-label">Latest posts</span>
-        <a href="/blog" class="view-all">View all →</a>
+        <div>
+          <span class="section-label">Series 01</span>
+          <h2 class="series-title">Al Brooks × Python</h2>
+          <p class="series-desc">Every Brooks concept translated into code — one at a time. What the math says, what the backtest shows, and where the discretion lives.</p>
+        </div>
+        <a href="/blog?series=brooks" class="view-all">View all →</a>
       </div>
-      {posts.length === 0 ? (
-        <div class="empty-state"><p>First post coming soon</p></div>
+
+      {brooksPosts.length === 0 ? (
+        <div class="posts-grid">
+          <a href="/blog/buy_signal_bar/" class="post-card">
+            <div class="post-card-top">
+              <span class="concept-badge">#01</span>
+              <span class="post-date">May 31, 2026</span>
+            </div>
+            <h2>I Coded Al Brooks' Buy Signal Bar in Python and Tested It on 23,000 Bars</h2>
+            <p>What happens when you translate Brooks' most-used entry trigger into a strict mathematical formula and run it on real SPY data?</p>
+            <div class="post-tags">
+              <span class="tag">al-brooks</span>
+              <span class="tag">signal-bars</span>
+              <span class="tag">python</span>
+            </div>
+          </a>
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="concept-badge">#02</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>Trend vs. Trading Range Detection in Python</h2>
+            <p>The most fundamental context layer in all of Brooks — can we define "always-in" direction with a mechanical rule?</p>
+          </div>
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="concept-badge">#03</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>Detecting the First Pullback — The 1PB Setup</h2>
+            <p>Brooks' highest-probability entry. Defining it in code and seeing how often it actually sets up in trending markets.</p>
+          </div>
+        </div>
       ) : (
         <div class="posts-grid">
-          {posts.map(post => (
+          {brooksPosts.map(post => (
             <a href={`/blog/${post.id}/`} class="post-card">
               <div class="post-card-top">
-                {post.data.concept ? <span class="concept-badge">#{post.data.concept}</span> : <span></span>}
-                <span class="post-date">{post.data.pubDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+                {post.data.concept
+                  ? <span class="concept-badge">#{post.data.concept}</span>
+                  : <span></span>}
+                <span class="post-date">
+                  {post.data.pubDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
+                </span>
               </div>
               <h2>{post.data.title}</h2>
               <p>{post.data.description}</p>
-              {post.data.tags && post.data.tags.length > 0 && (
-                <div class="post-tags">{post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}</div>
+              {post.data.tags && (
+                <div class="post-tags">
+                  {post.data.tags.map((t: string) => <span class="tag">{t}</span>)}
+                </div>
               )}
             </a>
           ))}
@@ -45,4 +114,54 @@ const posts = (await getCollection('blog')).sort((a,b) => b.data.pubDate.valueOf
       )}
     </div>
   </section>
+
+  <!-- Divider -->
+  <div class="series-divider">
+    <div class="container">
+      <hr />
+    </div>
+  </div>
+
+  <!-- Series 2: Backtest Autopsy -->
+  <section class="posts-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="section-label">Series 02</span>
+          <h2 class="series-title">Backtest Autopsy</h2>
+          <p class="series-desc">Popular trading strategies put under the microscope. RSI, MACD, moving averages, trading "rules" everyone repeats — tested on real data. No cherry-picking.</p>
+        </div>
+        <a href="/blog?series=autopsy" class="view-all">View all →</a>
+      </div>
+
+      <!-- Autopsy coming soon cards -->
+      <div class="posts-grid">
+        <div class="post-card coming-soon-card">
+          <div class="post-card-top">
+            <span class="autopsy-badge">Autopsy #01</span>
+            <span class="coming-soon-label">Coming soon</span>
+          </div>
+          <h2>I Tested the RSI Strategy Everyone Teaches — Here's What Actually Happened</h2>
+          <p>RSI overbought/oversold is taught in every beginner course. 10 years of data across multiple instruments. Does it work?</p>
+        </div>
+        <div class="post-card coming-soon-card">
+          <div class="post-card-top">
+            <span class="autopsy-badge">Autopsy #02</span>
+            <span class="coming-soon-label">Coming soon</span>
+          </div>
+          <h2>The Golden Cross Myth — 200 EMA Crossover Backtested on 15 Years of Data</h2>
+          <p>Every finance influencer swears by the golden cross. The data tells a more complicated story.</p>
+        </div>
+        <div class="post-card coming-soon-card">
+          <div class="post-card-top">
+            <span class="autopsy-badge">Autopsy #03</span>
+            <span class="coming-soon-label">Coming soon</span>
+          </div>
+          <h2>Does "Cut Losses Short, Let Profits Run" Actually Work? A Python Test</h2>
+          <p>The most repeated rule in trading — tested mechanically across 5,000 simulated trades.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </BaseLayout>
