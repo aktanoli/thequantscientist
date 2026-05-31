@@ -172,23 +172,37 @@ const autopsyPosts = allPosts.filter(p => p.data.series === 'autopsy');
         <a href="/tools" class="view-all">All tools →</a>
       </div>
 
-      <div class="tool-strip">
+      <div class="tool-strip" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));">
         <a href="/tools/risk-reward/" class="tool-strip-item">
           <span class="tool-arrow">↗</span>
           <div class="tool-strip-tag">Live</div>
-          <div class="tool-strip-name">Risk / Reward Calculator</div>
-          <p class="tool-strip-desc">Entry, stop, target → R:R ratio, position size, dollar risk, break-even win rate. Supports ES, NQ, stocks.</p>
+          <div class="tool-strip-name">Risk / Reward</div>
+          <p class="tool-strip-desc">R:R ratio, position size, dollar risk, break-even win rate. ES, NQ, DAX, BTC.</p>
         </a>
-        <div class="tool-strip-item coming">
-          <div class="tool-strip-tag dim">Soon</div>
-          <div class="tool-strip-name">Backtest Stats Analyzer</div>
-          <p class="tool-strip-desc">Paste your trade log — get Sharpe ratio, max drawdown, expectancy, and win rate breakdown.</p>
-        </div>
-        <div class="tool-strip-item coming">
-          <div class="tool-strip-tag dim">Soon</div>
-          <div class="tool-strip-name">ATR Position Sizer</div>
-          <p class="tool-strip-desc">Size positions based on ATR — the volatility-adjusted way Brooks would think about risk.</p>
-        </div>
+        <a href="/tools/drawdown-recovery/" class="tool-strip-item">
+          <span class="tool-arrow">↗</span>
+          <div class="tool-strip-tag">Live</div>
+          <div class="tool-strip-name">Drawdown Recovery</div>
+          <p class="tool-strip-desc">How much gain do you need after a loss? The math is more brutal than you think.</p>
+        </a>
+        <a href="/tools/win-rate/" class="tool-strip-item">
+          <span class="tool-arrow">↗</span>
+          <div class="tool-strip-tag">Live</div>
+          <div class="tool-strip-name">Win Rate Required</div>
+          <p class="tool-strip-desc">Enter your R:R — get the minimum win rate needed for a positive expectancy.</p>
+        </a>
+        <a href="/tools/expectancy/" class="tool-strip-item">
+          <span class="tool-arrow">↗</span>
+          <div class="tool-strip-tag">Live</div>
+          <div class="tool-strip-name">Trade Expectancy</div>
+          <p class="tool-strip-desc">Win rate + avg win/loss → expected value per trade, monthly projection, profit factor.</p>
+        </a>
+        <a href="/tools/monte-carlo/" class="tool-strip-item">
+          <span class="tool-arrow">↗</span>
+          <div class="tool-strip-tag">Live</div>
+          <div class="tool-strip-name">Monte Carlo Simulator</div>
+          <p class="tool-strip-desc">500 randomised equity curves. See your best case, worst case, and ruin risk.</p>
+        </a>
       </div>
     </div>
   </section>
