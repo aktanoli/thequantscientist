@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap');
+    </style>
+    <!-- Subtle grid pattern -->
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </pattern>
+    <!-- Gold glow gradient -->
+    <radialGradient id="glow" cx="75%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#B8860B" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0D0D0F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0D0D0F"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Top border line gold -->
+  <rect x="0" y="0" width="1200" height="3" fill="#B8860B"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="80" width="3" height="470" fill="#B8860B" opacity="0.4"/>
+
+  <!-- TQS logo mark -->
+  <rect x="108" y="80" width="64" height="64" rx="8" fill="none" stroke="#B8860B" stroke-width="2"/>
+  <text x="140" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="500" fill="#B8860B">TQS</text>
+
+  <!-- Site name -->
+  <text x="192" y="119" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="400" fill="#5A5654" letter-spacing="3">THEQUANTSCIENTIST.COM</text>
+
+  <!-- Main headline -->
+  <text x="108" y="260" font-family="Georgia, serif" font-size="62" font-weight="400" fill="#F0EDE8" letter-spacing="-1">Al Brooks price action,</text>
+  <text x="108" y="340" font-family="Georgia, serif" font-size="62" font-weight="400" font-style="italic" fill="#B8860B" letter-spacing="-1">measured in code.</text>
+
+  <!-- Divider -->
+  <line x1="108" y1="390" x2="520" y2="390" stroke="#2E2C2A" stroke-width="1"/>
+
+  <!-- Description -->
+  <text x="108" y="430" font-family="'JetBrains Mono', monospace" font-size="18" fill="#5A5654" letter-spacing="0.5">Learning Brooks from scratch — backtesting every concept in Python.</text>
+
+  <!-- Stats row -->
+  <text x="108" y="495" font-family="Georgia, serif" font-size="32" fill="#F0EDE8">1</text>
+  <text x="108" y="522" font-family="'JetBrains Mono', monospace" font-size="11" fill="#5A5654" letter-spacing="2">CONCEPTS CODED</text>
+
+  <line x1="200" y1="478" x2="200" y2="530" stroke="#2E2C2A" stroke-width="1"/>
+
+  <text x="220" y="495" font-family="Georgia, serif" font-size="32" fill="#F0EDE8">Python</text>
+  <text x="220" y="522" font-family="'JetBrains Mono', monospace" font-size="11" fill="#5A5654" letter-spacing="2">PRIMARY STACK</text>
+
+  <line x1="370" y1="478" x2="370" y2="530" stroke="#2E2C2A" stroke-width="1"/>
+
+  <text x="390" y="495" font-family="Georgia, serif" font-size="32" fill="#F0EDE8">ES · NQ</text>
+  <text x="390" y="522" font-family="'JetBrains Mono', monospace" font-size="11" fill="#5A5654" letter-spacing="2">INSTRUMENTS</text>
+
+  <!-- Right side decorative candle -->
+  <!-- Wick -->
+  <line x1="1000" y1="130" x2="1000" y2="200" stroke="#4A5568" stroke-width="3" stroke-linecap="round"/>
+  <line x1="1000" y1="430" x2="1000" y2="500" stroke="#4A5568" stroke-width="3" stroke-linecap="round"/>
+  <!-- Body green -->
+  <rect x="940" y="200" width="120" height="230" rx="6" fill="#276749" opacity="0.85"/>
+  <rect x="940" y="200" width="120" height="230" rx="6" fill="none" stroke="#1C4532" stroke-width="2"/>
+  <!-- Body label -->
+  <text x="1000" y="308" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" fill="#9AE6B4">BULL BODY</text>
+  <text x="1000" y="328" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" fill="#68D391">≥ 50% range</text>
+  <!-- Upper tail label -->
+  <text x="1080" y="170" font-family="'JetBrains Mono', monospace" font-size="11" fill="#FC8181">tail ≤ 20%</text>
+  <line x1="1065" y1="168" x2="1062" y2="165" stroke="#FC8181" stroke-width="1"/>
+  <line x1="1003" y1="165" x2="1062" y2="165" stroke="#FC8181" stroke-width="0.8" stroke-dasharray="3 3"/>
+</svg>
