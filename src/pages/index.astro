@@ -56,35 +56,59 @@ const autopsyPosts = allPosts.filter(p => p.data.series === 'autopsy');
       </div>
 
       <div class="posts-grid">
-        <a href="/blog/buy_signal_bar/" class="post-card">
-          <div class="post-card-top">
-            <span class="concept-badge">#01</span>
-            <span class="post-date">May 31, 2026</span>
+        {brooksPosts.length > 0 ? brooksPosts.slice(0, 3).map(post => (
+          <a href={`/blog/${post.id}/`} class="post-card">
+            <div class="post-card-top">
+              {post.data.concept
+                ? <span class="concept-badge">#{post.data.concept}</span>
+                : <span></span>}
+              <span class="post-date">
+                {post.data.pubDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
+              </span>
+            </div>
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+            {post.data.tags && (
+              <div class="post-tags">
+                {post.data.tags.slice(0,3).map((t: string) => <span class="tag">{t}</span>)}
+              </div>
+            )}
+          </a>
+        )) : (
+          <a href="/blog/buy_signal_bar/" class="post-card">
+            <div class="post-card-top">
+              <span class="concept-badge">#01</span>
+              <span class="post-date">May 31, 2026</span>
+            </div>
+            <h2>I Coded Al Brooks' Buy Signal Bar in Python and Tested It on 23,000 Bars</h2>
+            <p>What happens when you translate Brooks' most-used entry trigger into a strict mathematical formula and run it on real SPY data?</p>
+            <div class="post-tags">
+              <span class="tag">al-brooks</span>
+              <span class="tag">signal-bars</span>
+              <span class="tag">python</span>
+            </div>
+          </a>
+        )}
+        {brooksPosts.length < 2 && (
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="concept-badge">#02</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>Trend vs. Trading Range Detection in Python</h2>
+            <p>The most fundamental context layer in Brooks — can we define "always-in" direction with a mechanical rule?</p>
           </div>
-          <h2>I Coded Al Brooks' Buy Signal Bar in Python and Tested It on 23,000 Bars</h2>
-          <p>What happens when you translate Brooks' most-used entry trigger into a strict mathematical formula and run it on real SPY data?</p>
-          <div class="post-tags">
-            <span class="tag">al-brooks</span>
-            <span class="tag">signal-bars</span>
-            <span class="tag">python</span>
+        )}
+        {brooksPosts.length < 3 && (
+          <div class="post-card coming-soon-card">
+            <div class="post-card-top">
+              <span class="concept-badge">{brooksPosts.length < 2 ? '#03' : '#03'}</span>
+              <span class="coming-soon-label">Coming soon</span>
+            </div>
+            <h2>Detecting the First Pullback — The 1PB Setup</h2>
+            <p>Brooks' highest-probability entry. How often does it actually set up in trending markets?</p>
           </div>
-        </a>
-        <div class="post-card coming-soon-card">
-          <div class="post-card-top">
-            <span class="concept-badge">#02</span>
-            <span class="coming-soon-label">Coming soon</span>
-          </div>
-          <h2>Trend vs. Trading Range Detection in Python</h2>
-          <p>The most fundamental context layer in Brooks — can we define "always-in" direction with a mechanical rule?</p>
-        </div>
-        <div class="post-card coming-soon-card">
-          <div class="post-card-top">
-            <span class="concept-badge">#03</span>
-            <span class="coming-soon-label">Coming soon</span>
-          </div>
-          <h2>Detecting the First Pullback — The 1PB Setup</h2>
-          <p>Brooks' highest-probability entry. How often does it actually set up in trending markets?</p>
-        </div>
+        )}
       </div>
     </div>
   </section>
