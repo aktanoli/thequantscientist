@@ -2,7 +2,7 @@
 title: "I Coded Al Brooks' Trading Range Detection in Python and Ran It Live on Three Markets (Dax, Dow Jones Index, and Nasdaq)"
 description: "What happens when you translate Al Brooks' trading range, barbwire, and breakout rules into Python — and point them at the Nasdaq, Dow, and DAX with the same thresholds? Here's what actually worked, and what still needs work."
 pubDate: 2026-06-06
-concept: '02'
+concept: '03'
 tags: ['al-brooks', 'trading-ranges', 'python', 'price-action', 'market-structure', 'atr']
 ---
 
