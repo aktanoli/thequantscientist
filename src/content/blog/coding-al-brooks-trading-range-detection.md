@@ -99,7 +99,7 @@ def _is_barbwire(window, n=3):
 
 If every consecutive pair in the window overlaps by 40% or more, that's barbwire. It's a deceptively simple rule that catches a lot of the messy nonsense that ruins trend-following systems.
 
-![Dashboard showing the barbwire alert firing on a sideways DAX 5-minute chart](/images/blog/trading-ranges/dashboard_barbwire_screenshot.png)
+![Dashboard showing the barbwire alert firing on a sideways DAX 5-minute chart](trading-ranges/dashboard_barbwire_screenshot.png)
 *The dashboard catching live barbwire on the DAX 5-minute. Notice the EMA reading: 0 of the last 12 bars above, 12 below — strongly bearish bias, but the overlapping bars in the recent action override everything else with a "no-trade zone" call.*
 
 ## Step three: find the actual trading ranges
@@ -137,7 +137,7 @@ while i < n - 2:
 
 There's something pleasing about how dumb this is. No regression lines, no machine learning, no clever statistics. Just: how far can I go before the box gets too tall? If far enough, record it. If not, shrug and shuffle forward.
 
-![A trading range box drawn around sideways price action at the right edge of a Dow 5-minute chart](/images/blog/trading-ranges/tr_detection_chart.png)
+![A trading range box drawn around sideways price action at the right edge of a Dow 5-minute chart](trading-ranges/tr_detection_chart.png)
 *Here's what it looks like in practice — after a clean bear leg from 25k down to 24.8k, the algorithm spotted the consolidation in the bottom-right corner and boxed it. High 24,839.5, low 24,777.7, height 61.8 points. If price breaks below the low, the measured-move target is around 24,716.*
 
 Two parameters control everything — the ATR multiplier (I use 2.0) and the minimum bar count (I use 5). Lower the multiplier and you'll find lots of tiny tight ranges. Raise it and you'll only catch the obvious ones. Five bars is roughly Brooks's threshold for "this counts."
