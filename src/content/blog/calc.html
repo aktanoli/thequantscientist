@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 10px; }
+        .dashboard { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; box-sizing: border-box; max-width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 20px; }
+        .title { color: #58a6ff; font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .badge { background: #238636; color: #aff5b4; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 480px) { .grid { grid-template-columns: 1fr 1fr; } }
+        .control-group { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px; }
+        label { display: flex; justify-content: space-between; font-size: 12px; color: #8b949e; margin-bottom: 6px; }
+        .val-display { color: #58a6ff; font-weight: bold; }
+        input[type=range] { width: 100%; accent-color: #58a6ff; margin: 8px 0; }
+        .btn-run { background: #238636; color: white; border: 1px solid rgba(240,246,252,0.1); border-radius: 6px; padding: 12px; width: 100%; cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 15px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-run:hover { background: #2ea043; transform: translateY(-1px); }
+        .output-panel { margin-top: 20px; background: #1f2937; border: 1px solid #3b82f6; border-radius: 8px; padding: 15px; display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .metrics-display { display: flex; justify-content: space-between; align-items: center; }
+        .stat-label { font-size: 13px; color: #9ca3af; }
+        .stat-val { font-size: 20px; font-weight: 800; color: #34d399; font-family: monospace; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header">
+        <h4 class="title">📊 Brooks F2 + Wyckoff Simulation Terminal</h4>
+        <span class="badge">Win Rate: 48.89% (Fixed)</span>
+    </div>
+    
+    <div class="grid">
+        <div class="control-group">
+            <label>Starting Capital: <span class="val-display" id="cap_disp">$10,000</span></label>
+            <input type="range" id="capital" min="1000" max="100000" step="1000" value="10000" oninput="updateLabels()">
+        </div>
+        
+        <div class="control-group">
+            <label>Risk Per Trade: <span class="val-display" id="risk_disp">2.0%</span></label>
+            <input type="range" id="risk" min="0.5" max="10" step="0.5" value="2" oninput="updateLabels()">
+        </div>
+        
+        <div class="control-group" style="grid-column: 1 / -1;">
+            <label>Simulated Sample Trades (Sequences): <span class="val-display" id="trades_disp">45</span></label>
+            <input type="range" id="trades" min="10" max="200" step="5" value="45" oninput="updateLabels()">
+        </div>
+    </div>
+
+    <button class="btn-run" onclick="runQuantEngine()">Run Monte Carlo Sequence</button>
+    
+    <div id="output" class="output-panel">
+        <div class="metrics-display">
+            <span class="stat-label">Final Simulated Equity Status:</span>
+            <span class="stat-val" id="result_val">$0.00</span>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateLabels() {
+    document.getElementById('cap_disp').innerText = '$' + parseInt(document.getElementById('capital').value).toLocaleString();
+    document.getElementById('risk_disp').innerText = parseFloat(document.getElementById('risk').value).toFixed(1) + '%';
+    document.getElementById('trades_disp').innerText = document.getElementById('trades').value;
+}
+
+function runQuantEngine() {
+    let cap = parseFloat(document.getElementById('capital').value);
+    const wr = 0.4889; 
+    const rr = 2.0;    
+    const riskPct = parseFloat(document.getElementById('risk').value) / 100;
+    const totalTrades = parseInt(document.getElementById('trades').value);
+
+    for (let i = 0; i < totalTrades; i++) {
+        let rAmt = cap * riskPct;
+        if (Math.random() <= wr) {
+            cap += (rAmt * rr);
+        } else {
+            cap -= rAmt;
+        }
+    }
+    
+    const outVal = document.getElementById('result_val');
+    outVal.innerText = '$' + cap.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    
+    // Dynamically change color based on win/loss outcome
+    let originalCap = parseFloat(document.getElementById('capital').value);
+    if(cap >= originalCap) {
+        outVal.style.color = '#34d399'; // Green for profit
+    } else {
+        outVal.style.color = '#f87171'; // Red for loss
+    }
+    
+    document.getElementById('output').style.display = 'block';
+}
+updateLabels();
+</script>
+
+</body>
+</html>
