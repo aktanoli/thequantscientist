@@ -165,7 +165,7 @@ The standout alpha-generator in our research was a hybrid system built on raw ma
 
 ### 🧮 Interactive Equity Growth Simulator
 
-<iframe src="./calc.html" width="100%" height="400px" frameborder="0" scrolling="no" style="border: none; border-radius: 12px; background: #161b22;"></iframe>
+<iframe src="/calc.html" width="100%" height="410px" frameborder="0" scrolling="no" style="border: none; border-radius: 12px; background: #161b22;"></iframe>
 
 Why do retailers still lose? Because they do not understand the gap between human psychology and mathematics...
 This filtered out the noise completely, slashing total trades down to a pristine 45 setups while sending the win rate to 48.89%. Catching a near-50% win rate on a hard $1:2$ risk-to-reward ratio is an institutional-grade mathematical edge.
