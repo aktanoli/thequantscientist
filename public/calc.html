@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 10px; }
+        .dashboard { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; box-sizing: border-box; max-width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 20px; }
+        .title { color: #58a6ff; font-size: 15px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .badge { background: #388bfd26; color: #58a6ff; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; border: 1px solid #388bfd4d; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 480px) { .grid { grid-template-columns: 1fr 1fr; } }
+        .control-group { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px; }
+        label { display: flex; justify-content: space-between; font-size: 12px; color: #8b949e; margin-bottom: 6px; }
+        .val-display { color: #58a6ff; font-weight: bold; }
+        input[type=range] { width: 100%; accent-color: #58a6ff; margin: 8px 0; }
+        .btn-run { background: #238636; color: white; border: 1px solid rgba(240,246,252,0.1); border-radius: 6px; padding: 12px; width: 100%; cursor: pointer; font-weight: 600; font-size: 13px; margin-top: 15px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-run:hover { background: #2ea043; transform: translateY(-1px); }
+        .output-panel { margin-top: 20px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; display: none; }
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; border-bottom: 1px dashed #21262d; padding-bottom: 6px; }
+        .metric-row:last-child { border: none; margin: 0; padding: 0; }
+        .stat-val { font-family: monospace; font-weight: bold; color: #c9d1d9; }
+        .profit { color: #34d399 !important; }
+        .loss { color: #f87171 !important; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header">
+        <h4 class="title">🎲 Brooks F2 + Wyckoff Monte Carlo Simulator</h4>
+        <span class="badge">10,000 Iterations Shuffler</span>
+    </div>
+    
+    <div class="grid">
+        <div class="control-group">
+            <label>Starting Capital: <span class="val-display" id="cap_disp">$10,000</span></label>
+            <input type="range" id="capital" min="5000" max="100000" step="5000" value="10000" oninput="updateLabels()">
+        </div>
+        
+        <div class="control-group">
+            <label>Risk Per Trade: <span class="val-display" id="risk_disp">2.0%</span></label>
+            <input type="range" id="risk" min="0.5" max="5" step="0.5" value="2" oninput="updateLabels()">
+        </div>
+        
+        <div class="control-group">
+            <label>Sample Trades Sequence: <span class="val-display" id="trades_disp">45</span></label>
+            <input type="range" id="trades" min="20" max="100" step="5" value="45" oninput="updateLabels()">
+        </div>
+
+        <div class="control-group">
+            <label>Edge Settings: <span class="val-display">Fixed Alpha Matrix</span></label>
+            <div style="font-size: 11px; color: #8b949e; margin-top: 8px;">Win Rate: 48.89% | Risk-to-Reward: 1:2</div>
+        </div>
+    </div>
+
+    <button class="btn-run" onclick="runMonte CarloEngine()">Compute 10,000 Shuffled Runs</button>
+    
+    <div id="output" class="output-panel">
+        <div class="metric-row">
+            <span>Average Final Equity:</span>
+            <span class="stat-val profit" id="avg_equity">$0.00</span>
+        </div>
+        <div class="metric-row">
+            <span>Risk of Ruin (Account Dropped >50%):</span>
+            <span class="stat-val" id="ruin_rate">0.0%</span>
+        </div>
+        <div class="metric-row">
+            <span>Max Simulated Drawdown Cluster:</span>
+            <span class="stat-val loss" id="max_dd">0.0%</span>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateLabels() {
+    document.getElementById('cap_disp').innerText = '$' + parseInt(document.getElementById('capital').value).toLocaleString();
+    document.getElementById('risk_disp').innerText = parseFloat(document.getElementById('risk').value).toFixed(1) + '%';
+    document.getElementById('trades_disp').innerText = document.getElementById('trades').value;
+}
+
+function runMonte CarloEngine() {
+    const startCap = parseFloat(document.getElementById('capital').value);
+    const riskPct = parseFloat(document.getElementById('risk').value) / 100;
+    const totalTrades = parseInt(document.getElementById('trades').value);
+    const winRate = 0.4889;
+    const rr = 2.0;
+    
+    const simulations = 10000;
+    let totalEndingCapital = 0;
+    let ruinCount = 0;
+    let maximumWorstDD = 0;
+
+    for (let sim = 0; sim < simulations; sim++) {
+        let cap = startCap;
+        let peak = startCap;
+        let maxSimDD = 0;
+        let ruined = false;
+
+        for (let t = 0; t < totalTrades; t++) {
+            let riskAmt = cap * riskPct;
+            
+            if (Math.random() <= winRate) {
+                cap += (riskAmt * rr);
+            } else {
+                cap -= riskAmt;
+            }
+
+            if (cap > peak) peak = cap;
+            let dd = ((peak - cap) / peak) * 100;
+            if (dd > maxSimDD) maxSimDD = dd;
+            if (cap <= (startCap * 0.5)) ruined = true;
+        }
+
+        totalEndingCapital += cap;
+        if (ruined) ruinCount++;
+        if (maxSimDD > maximumWorstDD) maximumWorstDD = maxSimDD;
+    }
+
+    const avgEq = totalEndingCapital / simulations;
+    const ruinRate = (ruinCount / simulations) * 100;
+
+    document.getElementById('avg_equity').innerText = '$' + avgEq.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    document.getElementById('ruin_rate').innerText = ruinRate.toFixed(2) + '%';
+    document.getElementById('max_dd').innerText = maximumWorstDD.toFixed(1) + '%';
+    
+    document.getElementById('output').style.display = 'block';
+}
+updateLabels();
+</script>
+
+</body>
+</html>
