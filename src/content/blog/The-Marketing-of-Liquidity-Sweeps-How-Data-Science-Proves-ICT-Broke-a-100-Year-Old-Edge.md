@@ -1,4 +1,5 @@
 ---
+layout: "../../layouts/BaseLayout.astro"
 title: "The Marketing of Liquidity Sweeps: How Data Science Proves ICT Broke a 100-Year-Old Edge"
 description: "What happens when you convert Wyckoff Springs, Al Brooks failed breakouts, and ICT liquidity sweeps into systematic Python rules and backtest them on BTC-USD? The numbers show which ideas hold a real edge and which ones collapse under strict execution."
 pubDate: 2026-06-13
@@ -163,7 +164,6 @@ title: "The Mathematical Winners: Al Brooks F2 + Wyckoff Volume"
 
 The standout alpha-generator in our research was a hybrid system built on raw market dynamics, combining Wyckoff's structural confirmation with Brooks' execution rules...
 
-import BaseLayout from '../../layouts/BaseLayout.astro';
 
 ### 🧮 Interactive Equity Growth Simulator
 
@@ -173,8 +173,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   height="410px" 
   frameborder="0" 
   scrolling="no" 
-  style={{ border: 'none', borderRadius: '12px', background: '#161b22' }}
-/>
+  style="border: none; border-radius: 12px; background: #161b22;"
+></iframe>
+
 
 Why do retailers still lose? Because they do not understand the gap between human psychology and mathematics...
 This filtered out the noise completely, slashing total trades down to a pristine 45 setups while sending the win rate to 48.89%. Catching a near-50% win rate on a hard $1:2$ risk-to-reward ratio is an institutional-grade mathematical edge.
