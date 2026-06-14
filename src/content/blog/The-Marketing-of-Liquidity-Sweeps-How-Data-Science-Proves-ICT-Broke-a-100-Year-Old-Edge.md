@@ -2,6 +2,7 @@
 title: "The Marketing of Liquidity Sweeps: How Data Science Proves ICT Broke a 100-Year-Old Edge"
 description: "What happens when you convert Wyckoff Springs, Al Brooks failed breakouts, and ICT liquidity sweeps into systematic Python rules and backtest them on BTC-USD? The numbers show which ideas hold a real edge and which ones collapse under strict execution."
 pubDate: 2026-06-13
+series: autopsy
 concept: "02"
 tags:
     - ict
