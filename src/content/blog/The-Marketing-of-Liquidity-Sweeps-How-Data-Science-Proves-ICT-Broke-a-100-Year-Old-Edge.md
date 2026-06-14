@@ -165,43 +165,7 @@ The standout alpha-generator in our research was a hybrid system built on raw ma
 
 ### 🧮 Interactive Equity Growth Simulator
 
-<div style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; max-width: 100%; margin: 20px 0; font-family: sans-serif; color: #c9d1d9;">
-    <h4 style="color: #58a6ff; margin-top: 0;">Brooks F2 + Wyckoff Simulation Matrix</h4>
-    <div style="margin-bottom: 12px;">
-        <label style="display:block; font-size:12px; color:#8b949e; margin-bottom:4px;">Starting Capital ($)</label>
-        <input type="number" id="web_capital" value="10000" style="width:100%; padding:8px; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#c9d1d9; box-sizing:border-box;">
-    </div>
-    <div style="margin-bottom: 12px;">
-        <label style="display:block; font-size:12px; color:#8b949e; margin-bottom:4px;">Risk Per Trade (%)</label>
-        <input type="number" id="web_risk" value="2" step="0.5" style="width:100%; padding:8px; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#c9d1d9; box-sizing:border-box;">
-    </div>
-    <div style="margin-bottom: 12px;">
-        <label style="display:block; font-size:12px; color:#8b949e; margin-bottom:4px;">Total Simulated Trades</label>
-        <input type="number" id="web_trades" value="45" style="width:100%; padding:8px; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#c9d1d9; box-sizing:border-box;">
-    </div>
-    <button onclick="executeWebSim()" style="background:#238636; color:white; border:none; border-radius:6px; padding:10px; width:100%; cursor:pointer; font-weight:600;">Run Monte Carlo Sequence</button>
-    
-    <div id="web_output" style="margin-top: 15px; padding: 10px; background: #0d1117; border-left: 4px solid #58a6ff; display:none;">
-        Final Simulated Equity: <span id="web_result_val" style="color:#58a6ff; font-weight:bold; font-size:16px;">$0.00</span>
-    </div>
-</div>
-
-<script>
-function executeWebSim() {
-    let cap = parseFloat(document.getElementById('web_capital').value);
-    const wr = 0.4889; 
-    const rr = 2.0;    
-    const riskPct = parseFloat(document.getElementById('web_risk').value) / 100;
-    const trades = parseInt(document.getElementById('web_trades').value);
-
-    for (let i = 0; i < trades; i++) {
-        let rAmt = cap * riskPct;
-        if (Math.random() <= wr) { cap += (rAmt * rr); } else { cap -= rAmt; }
-    }
-    document.getElementById('web_result_val').innerText = '$' + cap.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    document.getElementById('web_output').style.display = 'block';
-}
-</script>
+<iframe src="./calc.html" width="100%" height="400px" frameborder="0" scrolling="no" style="border: none; border-radius: 12px; background: #161b22;"></iframe>
 
 Why do retailers still lose? Because they do not understand the gap between human psychology and mathematics...
 This filtered out the noise completely, slashing total trades down to a pristine 45 setups while sending the win rate to 48.89%. Catching a near-50% win rate on a hard $1:2$ risk-to-reward ratio is an institutional-grade mathematical edge.
