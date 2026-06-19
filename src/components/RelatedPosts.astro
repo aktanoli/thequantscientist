@@ -1,0 +1,95 @@
+---
+import { type CollectionEntry } from 'astro:content';
+
+interface Props {
+	posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+---
+
+{posts.length > 0 && (
+	<section class="related-posts container" aria-labelledby="related-posts-heading">
+		<div class="related-posts-header">
+			<p class="section-label">Recommended reading</p>
+			<h2 id="related-posts-heading">Keep the research going</h2>
+			<p>These posts share the same tags, concepts, or series and create the strongest internal links from this article.</p>
+		</div>
+		<div class="related-posts-grid">
+			{posts.map((post) => (
+				<a class="related-post-card" href={`/blog/${post.id}/`}>
+					<div class="related-post-topline">
+						<span>{post.data.series ?? (post.data.concept ? `Concept #${post.data.concept}` : 'Blog post')}</span>
+						<span>{post.data.pubDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}</span>
+					</div>
+					<h3>{post.data.title}</h3>
+					<p>{post.data.description}</p>
+				</a>
+			))}
+		</div>
+	</section>
+)}
+
+<style>
+	.related-posts {
+		padding: 3rem 1.5rem 4rem;
+	}
+
+	.related-posts-header {
+		max-width: 42rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.related-posts-header h2 {
+		margin: 0.25rem 0 0.75rem;
+		font-size: clamp(1.5rem, 3vw, 2rem);
+	}
+
+	.related-posts-header p {
+		margin: 0;
+		color: var(--muted);
+	}
+
+	.related-posts-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1rem;
+	}
+
+	.related-post-card {
+		display: block;
+		padding: 1.1rem 1.15rem;
+		border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+		border-radius: 14px;
+		text-decoration: none;
+		background: color-mix(in srgb, var(--surface, #111) 88%, transparent);
+		transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+	}
+
+	.related-post-card:hover {
+		transform: translateY(-2px);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+		background: color-mix(in srgb, var(--surface, #111) 94%, transparent);
+	}
+
+	.related-post-topline {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		font-size: 0.78rem;
+		color: var(--muted);
+		margin-bottom: 0.65rem;
+	}
+
+	.related-post-card h3 {
+		margin: 0 0 0.55rem;
+		font-size: 1.05rem;
+		line-height: 1.25;
+	}
+
+	.related-post-card p {
+		margin: 0;
+		color: var(--muted);
+		line-height: 1.55;
+	}
+</style>

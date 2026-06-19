@@ -8,14 +8,16 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article';
 }
-const { title, description = SITE_DESCRIPTION } = Astro.props;
-const fullTitle = title === 'Home' ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
+const { title, description = SITE_DESCRIPTION, image, type = 'website' } = Astro.props;
+const fullTitle = title === 'Home' ? SITE_TITLE : `${title} | ${SITE_TITLE}`;
 ---
 <!doctype html>
 <html lang="en">
 <head>
-  <BaseHead title={fullTitle} description={description} />
+  <BaseHead title={fullTitle} description={description} image={image} type={type} />
 </head>
 <body>
   <Ticker />

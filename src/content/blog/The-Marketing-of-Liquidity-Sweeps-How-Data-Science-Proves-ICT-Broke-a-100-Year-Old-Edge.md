@@ -1,13 +1,11 @@
 ---
 title: "ICT vs. Price Action: Is Liquidity Sweep Trading a Data-Backed Edge?"
 description: "A data-driven deep dive into ICT Smart Money Concepts vs. Classic Price Action using Python backtesting on BTC-USD."
-date: "2026-06-13"
+pubDate: 2026-06-13
 series: 'autopsy'
 concept: "02"
 tags: [ict, smc, python, backtesting, price-action, bitcoin]
 ---
-
-# The Marketing of Liquidity Sweeps: How Data Science Proves ICT Broke a 100-Year-Old Edge
 
 The best part about **quantitative trading** is that you do not have to rely on any guru's "trust me bro" course. You simply grab historical data, run it through a **Python engine**, and let the raw math strip away the marketing hype.
 
